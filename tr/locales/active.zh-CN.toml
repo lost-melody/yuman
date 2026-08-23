@@ -9,3 +9,11 @@ other = "以 JSON 格式输出信息"
 [VersionCmdDesc]
 hash = "sha1-6a72928f73393b6f3457a2b5e70c4b3b84b8cc21"
 other = "输出 yuman 的版本信息"
+
+[YumeCmdDesc]
+hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
+other = "管理宇梦引擎的安装, 配置与数据"
+
+[YumeInstallCmdDesc]
+hash = "sha1-ad88e4855e141b66e560b76dd21eee388e8c3952"
+other = "下载并安装宇梦引擎"
