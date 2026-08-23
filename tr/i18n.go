@@ -3,6 +3,7 @@ package tr
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -35,6 +36,10 @@ func init() {
 func Localize(lc *i18n.LocalizeConfig) string {
 	msg, _ := Localizer.Localize(lc)
 	return msg
+}
+
+func LocalizeError(lc *i18n.LocalizeConfig) error {
+	return errors.New(Localize(lc))
 }
 
 func getLocaleFromEnv() string {

@@ -1,3 +1,75 @@
+[ErrArchiveAbsolutePath]
+hash = "sha1-3e39346e07a8ddf8e5f9f8e05145882071098389"
+other = "压缩包条目包含绝对路径: '{{.Name}}'"
+
+[ErrArchiveEscape]
+hash = "sha1-f2da8b0a2f20441b2b832f331cc95ed493ce2399"
+other = "压缩包条目越出目标目录: '{{.Name}}'"
+
+[ErrCreateEnvironmentDir]
+hash = "sha1-ab4b67aa921fdc6d0da8b4f1f4618ed6da688614"
+other = "创建 environment.d 目录"
+
+[ErrCreateTempDir]
+hash = "sha1-5fb7fc1643579c6442294a57505076327513acca"
+other = "创建临时目录"
+
+[ErrFlagsConflict]
+hash = "sha1-0534b83f6f730f9ab90e54c0cd153224ab014187"
+other = "参数 '{{.FlagA}}' 和 '{{.FlagB}}' 相互冲突"
+
+[ErrInstallFailed]
+hash = "sha1-88a65ee4b343a2e1ba1e34f84fffd103406fe201"
+other = "安装失败"
+
+[ErrMissingParameter]
+hash = "sha1-3fbb2d9f347949479539bb7267b44e11d89c6d6c"
+other = "缺少参数 '{{.Parameter}}'"
+
+[ErrNoInstallableFiles]
+hash = "sha1-5d080728dec957330e9fb9ed23709e8a95a80280"
+other = "在 '{{.Directory}}' 中未找到可安装的文件"
+
+[ErrOpenGzip]
+hash = "sha1-0173619c10e737aa4e8793126a2e608ca7f4e9f2"
+other = "从 '{{.Package}}' 打开 gzip 流"
+
+[ErrResolveLayout]
+hash = "sha1-71ddcbb8941c642cf8ad6e56ec50ba8d0168a317"
+other = "解析安装布局"
+
+[ErrStatPackage]
+hash = "sha1-23e390eb9ecf8ce6bfdbf4abaa9ad140e3afee6f"
+other = "检查安装包 '{{.Package}}'"
+
+[ErrSystemInstallPkexec]
+hash = "sha1-89fdd4972ac5d609012def399a91f65fc1b054e3"
+other = "系统安装需要 pkexec"
+
+[ErrUnsupportedPackage]
+hash = "sha1-8b5c759bbdaaf5eed860d9b4668067a1870beb3c"
+other = "不支持的安装包 '{{.Package}}': 应为目录或 .tar.gz 压缩包"
+
+[ErrWriteEnvironmentFile]
+hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
+other = "写入 '{{.Path}}'"
+
+[InstallSystemDirs]
+hash = "sha1-d5beb3521ca5ae4fdfb6f6e1e5c18880fd22d7ac"
+other = "系统目录"
+
+[InstallUserDirs]
+hash = "sha1-c1c9583c5772b4f75b1ac74c30a7f2019ed4fec0"
+other = "用户目录"
+
+[InstallingFile]
+hash = "sha1-868ac7c448e992a4983b79ba801e3cc01a9f7ad7"
+other = "{{.Source}} -> {{.Destination}}"
+
+[InstallingPackage]
+hash = "sha1-d376f1d0c3fc3807e049a10b0a85d6e63bd2e93b"
+other = "正在将安装包 '{{.Package}}' 安装到 {{.Target}}..."
+
 [RootCmdDesc]
 hash = "sha1-dd753efbbbc82d2bad5f3b2a31a2df5b6c0992e1"
 other = "宇梦输入引擎的 CLI 工具"
@@ -6,14 +78,50 @@ other = "宇梦输入引擎的 CLI 工具"
 hash = "sha1-e040f1c7029649fe5cf404fcc60df7ae31bd6003"
 other = "以 JSON 格式输出信息"
 
+[RootFlagVerbose]
+hash = "sha1-0b4752d44b4b87e37aa4b035fd92af514283fc87"
+other = "输出详细信息"
+
 [VersionCmdDesc]
 hash = "sha1-6a72928f73393b6f3457a2b5e70c4b3b84b8cc21"
 other = "输出 yuman 的版本信息"
+
+[WarnLocaleSkipped]
+hash = "sha1-708e3ca309dd320f8ddb53451f8a5f23546ec25a"
+other = "语言文件未安装 (pkexec 被拒绝)"
 
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
 other = "管理宇梦引擎的安装, 配置与数据"
 
 [YumeInstallCmdDesc]
-hash = "sha1-ad88e4855e141b66e560b76dd21eee388e8c3952"
-other = "下载并安装宇梦引擎"
+hash = "sha1-82a968648ce2b60e729bb4b307946ad2c58d0137"
+other = "安装宇梦引擎"
+
+[YumeInstallFlagPackage]
+hash = "sha1-603259311084bff8b38ab651a4208b4e6d50c456"
+other = "宇梦安装包路径"
+
+[YumeInstallFlagSystem]
+hash = "sha1-fffc1c7b6e92faf6884891ff117100fec6e537a4"
+other = "安装到系统目录 (需要 root)"
+
+[YumeInstallFlagUser]
+hash = "sha1-c77d9dae728f89abe1decbf586b56207b1747b81"
+other = "安装到用户目录"
+
+[YumeInstallSelectPackage]
+hash = "sha1-1848e4cf8bb5f6ba58b0666f5da9a015ca44a83c"
+other = "选择宇梦安装包: (目录或 '.tar.gz' 文件)"
+
+[YumeInstallUserQuestion]
+hash = "sha1-aead1f1e31b0b376ded27d9cf9b96fc7a911e431"
+other = "宇梦应安装到何处?"
+
+[YumeInstallUserQuestionNo]
+hash = "sha1-50a270b030d0cb05b15423108f628e284bf275e0"
+other = "系统目录 (需要 root)"
+
+[YumeInstallUserQuestionYes]
+hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
+other = "用户目录"
