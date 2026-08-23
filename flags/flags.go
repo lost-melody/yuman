@@ -2,6 +2,10 @@
 package flags
 
 const (
+	Verbose = "verbose"
 	JSON    = "json"
 	Version = "version"
+	User    = "user"
+	System  = "system"
+	Package = "package"
 )

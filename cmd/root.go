@@ -24,6 +24,12 @@ var (
 			Other: "The command line helper for the yume engine",
 		},
 	}
+	MsgRootFlagVerbose = i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "RootFlagVerbose",
+			Other: "Print verbose information",
+		},
+	}
 	MsgRootFlagJSON = i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "RootFlagJSON",
@@ -49,8 +55,9 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().BoolP(flags.Verbose, "v", false, tr.Localize(&MsgRootFlagVerbose))
 	rootCmd.PersistentFlags().BoolP(flags.JSON, "j", false, tr.Localize(&MsgRootFlagJSON))
-	rootCmd.Flags().BoolP(flags.Version, "v", false, versionCmd.Short)
+	rootCmd.Flags().BoolP(flags.Version, "V", false, versionCmd.Short)
 }
 
 func runRoot(cmd *cobra.Command, args []string) error {
