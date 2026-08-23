@@ -1,0 +1,11 @@
+[RootCmdDesc]
+hash = "sha1-dd753efbbbc82d2bad5f3b2a31a2df5b6c0992e1"
+other = "宇梦输入引擎的 CLI 工具"
+
+[RootFlagJSON]
+hash = "sha1-e040f1c7029649fe5cf404fcc60df7ae31bd6003"
+other = "以 JSON 格式输出信息"
+
+[VersionCmdDesc]
+hash = "sha1-6a72928f73393b6f3457a2b5e70c4b3b84b8cc21"
+other = "输出 yuman 的版本信息"

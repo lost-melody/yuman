@@ -1,0 +1,3 @@
+RootCmdDesc = "The command line helper for the yume engine"
+RootFlagJSON = "Print messages in JSON format"
+VersionCmdDesc = "Print the version number of yuman"
