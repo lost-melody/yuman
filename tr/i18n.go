@@ -42,6 +42,11 @@ func LocalizeError(lc *i18n.LocalizeConfig) error {
 	return errors.New(Localize(lc))
 }
 
+// LocalizeErrorf treats "Localize(lc)" as a format string in which '%w' is used.
+func LocalizeErrorf(lc *i18n.LocalizeConfig, a ...any) error {
+	return fmt.Errorf(Localize(lc), a...)
+}
+
 func getLocaleFromEnv() string {
 	lang, _ := os.LookupEnv("LANG")
 	if lang != "" {
