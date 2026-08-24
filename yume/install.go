@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -496,13 +495,13 @@ func installFromDir(ctx context.Context, srcDir string, layout installLayout, us
 	if userDirs {
 		if len(normalOps) > 0 {
 			script := buildInstallScript(normalDirList, normalOps)
-			if err := runInstallScript(ctx, script, false); err != nil {
+			if err := runShellScript(ctx, script, false, &MsgErrSystemInstallPkexec, &MsgErrInstallFailed); err != nil {
 				return err
 			}
 		}
 		if len(localeOps) > 0 {
 			script := buildInstallScript(localeDirList, localeOps)
-			if err := runInstallScript(ctx, script, true); err != nil {
+			if err := runShellScript(ctx, script, true, &MsgErrSystemInstallPkexec, &MsgErrInstallFailed); err != nil {
 				// Locale files are best-effort during user installs; a declined
 				// pkexec prompt must not abort the installation.
 				fmt.Printf("%s\n", tr.Localize(&MsgWarnLocaleSkipped))
@@ -514,7 +513,7 @@ func installFromDir(ctx context.Context, srcDir string, layout installLayout, us
 	allOps := append(append([]installOp{}, normalOps...), localeOps...)
 	allDirs := append(append([]string{}, normalDirList...), localeDirList...)
 	script := buildInstallScript(allDirs, allOps)
-	return runInstallScript(ctx, script, true)
+	return runShellScript(ctx, script, true, &MsgErrSystemInstallPkexec, &MsgErrInstallFailed)
 }
 
 // buildInstallScript assembles the copy operations into a single "&&"-joined
@@ -532,31 +531,4 @@ func buildInstallScript(dirs []string, ops []installOp) string {
 		parts = append(parts, "cp "+shellQuote(op.src)+" "+shellQuote(op.dest))
 	}
 	return strings.Join(parts, " && ")
-}
-
-// runInstallScript executes the install command through /usr/bin/sh, wrapping it
-// in pkexec when a system install needs root privileges.
-func runInstallScript(ctx context.Context, script string, usePkexec bool) error {
-	argv := []string{"/usr/bin/sh", "-c", script}
-	if usePkexec {
-		pkexec, err := exec.LookPath("pkexec")
-		if err != nil {
-			return wrapError(&MsgErrSystemInstallPkexec, err)
-		}
-		argv = append([]string{pkexec, "--keep-cwd"}, argv...)
-	}
-
-	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return wrapError(&MsgErrInstallFailed, err)
-	}
-	return nil
-}
-
-// shellQuote quotes a string for safe inclusion in a POSIX shell command.
-func shellQuote(s string) string {
-	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }

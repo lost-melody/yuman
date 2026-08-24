@@ -95,7 +95,7 @@ func init() {
 	yumeCmd.AddCommand(yumeInstallCmd)
 	yumeInstallCmd.Flags().BoolP(flags.User, "u", false, tr.Localize(&MsgYumeInstallFlagUser))
 	yumeInstallCmd.Flags().BoolP(flags.System, "s", false, tr.Localize(&MsgYumeInstallFlagSystem))
-	yumeInstallCmd.Flags().StringP(flags.Package, "p", "", tr.Localize(&MsgYumeInstallFlagSystem))
+	yumeInstallCmd.Flags().StringP(flags.Package, "p", "", tr.Localize(&MsgYumeInstallFlagPackage))
 }
 
 func runYumeInstall(cmd *cobra.Command, args []string) (err error) {
@@ -130,7 +130,7 @@ func runYumeInstall(cmd *cobra.Command, args []string) (err error) {
 			FileAllowed(true).
 			DirAllowed(true).
 			Value(&pkgPath).
-			WithHeight(8).
+			Height(8).
 			Run()
 		if err != nil {
 			return

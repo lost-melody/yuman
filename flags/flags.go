@@ -8,4 +8,5 @@ const (
 	User    = "user"
 	System  = "system"
 	Package = "package"
+	Purge   = "purge"
 )
