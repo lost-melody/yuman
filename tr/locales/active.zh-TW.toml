@@ -82,9 +82,29 @@ other = "不支援的安裝包 '{{.Package}}': 應為目錄或 .tar.gz 壓縮檔
 hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
 other = "寫入 '{{.Path}}'"
 
+[Fcitx5AddonCmdDesc]
+hash = "sha1-1248b4c7cfad7f8838c4799a2c3ea21b90360302"
+other = "管理 fcitx5 插件"
+
+[Fcitx5AddonListCmdDesc]
+hash = "sha1-a7495bd1d227b595b5cdb91e388b691fef9924f2"
+other = "輸出 fcitx5 插件列表"
+
 [Fcitx5CmdDesc]
 hash = "sha1-f5f8b0e051d214a10072b6ce5e11ce2f1ae0772c"
 other = "通過 DBus 總線管理 fcitx5 服務"
+
+[Fcitx5ConfigCmdDesc]
+hash = "sha1-ac6811adc68a85afb54071f68d10c043c48e120f"
+other = "管理 fcitx5 配置"
+
+[Fcitx5ConfigDumpCmdDesc]
+hash = "sha1-d57da0ad9f8f23e51fda35c4cfa6db7a8694d037"
+other = "輸出 fcitx5 或其插件的配置信息"
+
+[Fcitx5ConfigSchemeCmdDesc]
+hash = "sha1-33281c5f0716791a0ad199a874fe97175922330f"
+other = "輸出 fcitx5 或其插件的配置結構"
 
 [Fcitx5RestartCmdDesc]
 hash = "sha1-f02082e2a17bbdb70ac2a8e185ff4a9c67c96447"
