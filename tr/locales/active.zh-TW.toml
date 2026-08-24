@@ -6,6 +6,14 @@ other = "壓縮檔條目包含絕對路徑: '{{.Name}}'"
 hash = "sha1-f2da8b0a2f20441b2b832f331cc95ed493ce2399"
 other = "壓縮檔條目超出目標目錄: '{{.Name}}'"
 
+[ErrCallDBusMethod]
+hash = "sha1-4954dee091430237d887c57f3e16ec5dcad0a48e"
+other = "調用 {{.BusType}} 總線方法 '{{.Method}}' 時: %w"
+
+[ErrConnectDBus]
+hash = "sha1-ec17fa90093620b0f5aab5a42fb0f9cee8636478"
+other = "連接 {{.BusType}} 總線時: %w"
+
 [ErrCreateEnvironmentDir]
 hash = "sha1-ab4b67aa921fdc6d0da8b4f1f4618ed6da688614"
 other = "建立 environment.d 目錄"
@@ -13,6 +21,10 @@ other = "建立 environment.d 目錄"
 [ErrCreateTempDir]
 hash = "sha1-5fb7fc1643579c6442294a57505076327513acca"
 other = "建立暫存目錄"
+
+[ErrFcitx5CannotRestart]
+hash = "sha1-ef09b43c2657f7a6bbd75a150b4fa94de61575d1"
+other = "無法重啟 fcitx5 服務"
 
 [ErrFlagsConflict]
 hash = "sha1-0534b83f6f730f9ab90e54c0cd153224ab014187"
@@ -30,6 +42,10 @@ other = "缺少參數 '{{.Parameter}}'"
 hash = "sha1-5d080728dec957330e9fb9ed23709e8a95a80280"
 other = "在 '{{.Directory}}' 中找不到可安裝的檔案"
 
+[ErrNothingSelected]
+hash = "sha1-3a441f633310e72cef581f71a3cfd36ed6125650"
+other = "未選擇任何項"
+
 [ErrOpenGzip]
 hash = "sha1-0173619c10e737aa4e8793126a2e608ca7f4e9f2"
 other = "從 '{{.Package}}' 開啟 gzip 串流"
@@ -37,6 +53,10 @@ other = "從 '{{.Package}}' 開啟 gzip 串流"
 [ErrResolveLayout]
 hash = "sha1-71ddcbb8941c642cf8ad6e56ec50ba8d0168a317"
 other = "解析安裝佈局"
+
+[ErrResolveUninstallLayout]
+hash = "sha1-a8bdd5c09c2fd08232ecd4f26c044acf82ece13b"
+other = "解析解除安裝佈局"
 
 [ErrStatPackage]
 hash = "sha1-23e390eb9ecf8ce6bfdbf4abaa9ad140e3afee6f"
@@ -46,6 +66,14 @@ other = "檢查安裝包 '{{.Package}}'"
 hash = "sha1-89fdd4972ac5d609012def399a91f65fc1b054e3"
 other = "系統安裝需要 pkexec"
 
+[ErrSystemUninstallPkexec]
+hash = "sha1-5bee0e3b2b3d07be4a67b57d6f9993475b820a14"
+other = "系統解除安裝需要 pkexec"
+
+[ErrUninstallFailed]
+hash = "sha1-380d242586ac4aab8541d2beda4e6caba3657a5d"
+other = "解除安裝失敗"
+
 [ErrUnsupportedPackage]
 hash = "sha1-8b5c759bbdaaf5eed860d9b4668067a1870beb3c"
 other = "不支援的安裝包 '{{.Package}}': 應為目錄或 .tar.gz 壓縮檔"
@@ -53,6 +81,14 @@ other = "不支援的安裝包 '{{.Package}}': 應為目錄或 .tar.gz 壓縮檔
 [ErrWriteEnvironmentFile]
 hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
 other = "寫入 '{{.Path}}'"
+
+[Fcitx5CmdDesc]
+hash = "sha1-f5f8b0e051d214a10072b6ce5e11ce2f1ae0772c"
+other = "通過 DBus 總線管理 fcitx5 服務"
+
+[Fcitx5RestartCmdDesc]
+hash = "sha1-f02082e2a17bbdb70ac2a8e185ff4a9c67c96447"
+other = "重啟 fcitx5 服務"
 
 [InstallSystemDirs]
 hash = "sha1-d5beb3521ca5ae4fdfb6f6e1e5c18880fd22d7ac"
@@ -70,6 +106,10 @@ other = "{{.Source}} -> {{.Destination}}"
 hash = "sha1-d376f1d0c3fc3807e049a10b0a85d6e63bd2e93b"
 other = "正在將安裝包 '{{.Package}}' 安裝到 {{.Target}}..."
 
+[RemovingFile]
+hash = "sha1-ce1d8a3ebe32aa86309cdabda2c811a8fd1fd07e"
+other = "移除 '{{.Path}}'"
+
 [RootCmdDesc]
 hash = "sha1-dd753efbbbc82d2bad5f3b2a31a2df5b6c0992e1"
 other = "宇夢輸入引擎的 CLI 工具"
@@ -82,6 +122,10 @@ other = "以 JSON 格式輸出信息"
 hash = "sha1-0b4752d44b4b87e37aa4b035fd92af514283fc87"
 other = "輸出詳細資訊"
 
+[UninstallingYume]
+hash = "sha1-88078ed6c936e9c5839d51b57535e6853e518aca"
+other = "正在從 {{.Target}} 解除安裝宇夢引擎..."
+
 [VersionCmdDesc]
 hash = "sha1-6a72928f73393b6f3457a2b5e70c4b3b84b8cc21"
 other = "輸出 yuman 的版本信息"
@@ -89,6 +133,10 @@ other = "輸出 yuman 的版本信息"
 [WarnLocaleSkipped]
 hash = "sha1-708e3ca309dd320f8ddb53451f8a5f23546ec25a"
 other = "語言檔案未安裝 (pkexec 被拒絕)"
+
+[WarnUninstallSkipped]
+hash = "sha1-d331195eb4539569a638b5fcaf92651208dec7ab"
+other = "部分檔案未被移除 (pkexec 被拒絕)"
 
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
@@ -123,5 +171,61 @@ hash = "sha1-50a270b030d0cb05b15423108f628e284bf275e0"
 other = "系統目錄 (需要 root)"
 
 [YumeInstallUserQuestionYes]
+hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
+other = "用戶目錄"
+
+[YumeUninstallCmdDesc]
+hash = "sha1-9726bf4737334a73a84c16250e3eb2c6dc10166f"
+other = "解除安裝宇夢引擎"
+
+[YumeUninstallConfirm]
+hash = "sha1-933ad2b78af4381069ba69f89381e2d910a88b6b"
+other = "確認從 {{.Targets}} 解除安裝宇夢引擎?"
+
+[YumeUninstallConfirmNo]
+hash = "sha1-77dfd2135f4db726c47299bb55be26f7f4525a46"
+other = "取消"
+
+[YumeUninstallConfirmYes]
+hash = "sha1-a735da1d32d75e3e35cf8107c766d4fb4b88a5b2"
+other = "解除安裝"
+
+[YumeUninstallDataKept]
+hash = "sha1-9b6433addbdef3ecc95e5d37f4b60fdfc0d5e695"
+other = "已保留宇夢用戶數據 '{{.Path}}' (傳入 --purge 可將其移除)"
+
+[YumeUninstallFlagPurge]
+hash = "sha1-549ad126969027e3b5952dfa2003ca3e29acf970"
+other = "同時移除宇夢用戶數據 (~/.local/share/yume)"
+
+[YumeUninstallFlagSystem]
+hash = "sha1-04e5e286464cddacad700b4eb3facfd2cd526d52"
+other = "從系統目錄解除安裝 (需要 root)"
+
+[YumeUninstallFlagUser]
+hash = "sha1-710694de98d8309faa1e1b41c364e7330ba0680b"
+other = "從用戶目錄解除安裝"
+
+[YumeUninstallPurgeNo]
+hash = "sha1-466fc492747ca98312d409e81f2b1df4f2931346"
+other = "保留"
+
+[YumeUninstallPurgeQuestion]
+hash = "sha1-e3851f0daa5a6140e423dacaa03deaac7cca51a2"
+other = "同時移除宇夢用戶數據 (~/.local/share/yume)?"
+
+[YumeUninstallPurgeYes]
+hash = "sha1-e963907dac5cd5c017869b4c96c18021c9bd058b"
+other = "移除"
+
+[YumeUninstallQuestion]
+hash = "sha1-b32c356ea2e21e18a2668ab0ce763979e61cfdda"
+other = "應解除安裝哪些宇夢安裝?"
+
+[YumeUninstallQuestionSystem]
+hash = "sha1-50a270b030d0cb05b15423108f628e284bf275e0"
+other = "系統目錄 (需要 root)"
+
+[YumeUninstallQuestionUser]
 hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
 other = "用戶目錄"
