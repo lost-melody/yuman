@@ -20,3 +20,18 @@ func ExampleControllerImpl_CanRestart() {
 	fmt.Println("CanRestart:", canRestart)
 	// Output: CanRestart: true
 }
+
+func ExampleControllerImpl_GetAddonConfig() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	config, err := Controller.GetAddonConfig(ctx, "yume")
+	if err != nil {
+		log.Println("Error:", err)
+		return
+	}
+
+	fmt.Println(len(config.Schemes))
+
+	// Output: 1
+}
