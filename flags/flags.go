@@ -9,4 +9,7 @@ const (
 	System  = "system"
 	Package = "package"
 	Purge   = "purge"
+	Name    = "name"
+	Table   = "table"
+	Div     = "div"
 )

@@ -10,6 +10,30 @@ other = "壓縮檔條目超出目標目錄: '{{.Name}}'"
 hash = "sha1-4954dee091430237d887c57f3e16ec5dcad0a48e"
 other = "調用 {{.BusType}} 總線方法 '{{.Method}}' 時: %w"
 
+[ErrCompileCustom]
+hash = "sha1-793bd6f46b5e7a5c07ff3b0e4d3b8985fa274a52"
+other = "編譯自訂方案"
+
+[ErrCompileDivision]
+hash = "sha1-55ee5efe1aa868716fe76ea1a571c6867637f91f"
+other = "編譯拆分表"
+
+[ErrCompileSlotCreate]
+hash = "sha1-ec8844578273aa1c7fff82b40be11c7afe038fc9"
+other = "建立方案槽位"
+
+[ErrCompileSlotDir]
+hash = "sha1-054289684cd8c9e1514029f396e3933f3302cf0c"
+other = "解析方案槽位目錄"
+
+[ErrCompileSlotList]
+hash = "sha1-19dd10a5d3e47a4b53966ba8373de3e45d5fb499"
+other = "列出方案槽位"
+
+[ErrCompileSlotSource]
+hash = "sha1-dad26c0211761847bf783dffb8d3ce24391e3a84"
+other = "註冊方案來源"
+
 [ErrConnectDBus]
 hash = "sha1-ec17fa90093620b0f5aab5a42fb0f9cee8636478"
 other = "連接 {{.BusType}} 總線時: %w"
@@ -49,6 +73,14 @@ other = "未選擇任何項"
 [ErrOpenGzip]
 hash = "sha1-0173619c10e737aa4e8793126a2e608ca7f4e9f2"
 other = "從 '{{.Package}}' 開啟 gzip 串流"
+
+[ErrResolveCompile]
+hash = "sha1-c248736554c11d8a515e4070b8660c857882b5be"
+other = "定位 yume-compile"
+
+[ErrResolveCustomRoot]
+hash = "sha1-2608e2bb27dede85f21f3503840a03629719f26c"
+other = "解析自訂方案根目錄"
 
 [ErrResolveLayout]
 hash = "sha1-71ddcbb8941c642cf8ad6e56ec50ba8d0168a317"
@@ -102,6 +134,10 @@ other = "管理 fcitx5 配置"
 hash = "sha1-d57da0ad9f8f23e51fda35c4cfa6db7a8694d037"
 other = "輸出 fcitx5 或其插件的配置信息"
 
+[Fcitx5ConfigReloadCmdDesc]
+hash = "sha1-8b4ec78975e96168a3c3a4c41befb10f7f2e630a"
+other = "重載 fcitx5 配置或其插件配置"
+
 [Fcitx5ConfigSchemeCmdDesc]
 hash = "sha1-33281c5f0716791a0ad199a874fe97175922330f"
 other = "輸出 fcitx5 或其插件的配置結構"
@@ -109,6 +145,18 @@ other = "輸出 fcitx5 或其插件的配置結構"
 [Fcitx5RestartCmdDesc]
 hash = "sha1-f02082e2a17bbdb70ac2a8e185ff4a9c67c96447"
 other = "重啟 fcitx5 服務"
+
+[ImportRunning]
+hash = "sha1-f0ce79d3e49badf2e1851a96c571e9cddf37eaf2"
+other = "正在執行 {{.Command}}"
+
+[ImportedSchema]
+hash = "sha1-1324cc54bc09fe891a570fae62ccb43431bda29c"
+other = "已導入方案 '{{.ID}}'"
+
+[ImportingSchema]
+hash = "sha1-8308496d43a82c48be39d5b966e6670dd09a860a"
+other = "正在導入方案 '{{.Name}}'..."
 
 [InstallSystemDirs]
 hash = "sha1-d5beb3521ca5ae4fdfb6f6e1e5c18880fd22d7ac"
@@ -161,6 +209,42 @@ other = "部分檔案未被移除 (pkexec 被拒絕)"
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
 other = "管理宇夢輸入系統的安裝, 配置與數據"
+
+[YumeCustomCmdDesc]
+hash = "sha1-bc946ad5b89b8e783b60c9c539670c9ba039bd4d"
+other = "管理宇夢自訂方案"
+
+[YumeCustomImportCmdDesc]
+hash = "sha1-a5c0f22a1914379d9021d159f8f33b4d8ab56e46"
+other = "導入自訂方案到宇夢"
+
+[YumeCustomImportFlagDiv]
+hash = "sha1-61a4f33e68b72137c2a2750a2b9449a89eee6905"
+other = "拆分表檔案路徑 (.txt, 預設為 /dev/null)"
+
+[YumeCustomImportFlagName]
+hash = "sha1-8acea6238c3eecbf74db463920d9b7f970397dfd"
+other = "方案名稱"
+
+[YumeCustomImportFlagTable]
+hash = "sha1-c3c62350606f42b8a2325ee7cc325aed704981d8"
+other = "碼表檔案路徑 (.txt)"
+
+[YumeCustomImportFormDiv]
+hash = "sha1-21a3db38acb40f115dd7a02a72d8e129053a4567"
+other = "拆分表檔案 (.txt, 可選)"
+
+[YumeCustomImportFormName]
+hash = "sha1-8acea6238c3eecbf74db463920d9b7f970397dfd"
+other = "方案名稱"
+
+[YumeCustomImportFormTable]
+hash = "sha1-e39c27848b1a4e83ed0f1afcd524fca0e94e833a"
+other = "碼表檔案 (.txt)"
+
+[YumeCustomListCmdDesc]
+hash = "sha1-1b6b7756e7bb95597d75d5af108dafa35f4b6e4b"
+other = "列出宇夢自訂方案"
 
 [YumeInstallCmdDesc]
 hash = "sha1-82a968648ce2b60e729bb4b307946ad2c58d0137"
