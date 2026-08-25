@@ -74,7 +74,7 @@ func completeFcitx5Addons(cmd *cobra.Command, args []string, toComplete string) 
 		return
 	}
 	completions = lo.FilterMap(addons, func(addon *fcitx5.AddonInfo, _ int) (string, bool) {
-		return addon.UniqueName, addon.Configurable
+		return addon.UniqueName, addon.Configurable && addon.Enabled
 	})
 	return
 }
