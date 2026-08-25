@@ -26,7 +26,7 @@ const environmentFileName = "60-yume.conf"
 type installLayout struct {
 	libDir    string // parent of fcitx5/, e.g. /usr/lib/x86_64-linux-gnu
 	shareDir  string // base share dir, e.g. /usr/share or ~/.local/share
-	yumeDir   string // yume data dir, always ~/.local/share/yume
+	yumeDir   string // yume data dir, ~/.local/share/yume or /usr/share/yume
 	localeDir string // gettext locale dir
 }
 
@@ -196,9 +196,10 @@ func wrapError(cfg *i18n.LocalizeConfig, cause error) error {
 // or if installing into system directories, use '/usr/lib/`, `/usr/share/`.
 // yume always runs as a non-root user: system installs run a single shell
 // command through pkexec, while user installs write straight into the home
-// directory. 'yume' data is always installed into '~/.local/share/yume/', and
-// 'libyume.so' may need to be installed into '/usr/lib/x86_64-linux-gnu/fcitx5/',
-// where the 'libclassicui.so' is located.
+// directory. 'yume' data is installed into '~/.local/share/yume/' for user
+// installs or '/usr/share/yume/' for system installs, and 'libyume.so' may
+// need to be installed into '/usr/lib/x86_64-linux-gnu/fcitx5/', where the
+// 'libclassicui.so' is located.
 //
 // Locale files are always installed into the system locale directory because
 // fcitx5 does not load translations from user directories. For user installs
@@ -251,25 +252,41 @@ func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose boo
 
 // resolveLayout computes the destination directories for an install.
 func resolveLayout(userDirs bool) (installLayout, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return installLayout{}, err
-	}
-
-	layout := installLayout{
-		yumeDir: filepath.Join(home, ".local", "share", "yume"),
-	}
+	layout := installLayout{}
 	if userDirs {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return installLayout{}, err
+		}
+		dataHome, err := userDataHome()
+		if err != nil {
+			return installLayout{}, err
+		}
 		layout.libDir = filepath.Join(home, ".local", "lib")
-		layout.shareDir = filepath.Join(home, ".local", "share")
+		layout.shareDir = dataHome
+		layout.yumeDir = filepath.Join(dataHome, "yume")
 	} else {
 		layout.libDir = findSystemLibParent()
 		layout.shareDir = "/usr/share"
+		layout.yumeDir = "/usr/share/yume"
 	}
 	// Locale files always go to the system directory: fcitx5 does not load
 	// translations from user directories.
 	layout.localeDir = "/usr/share/locale"
 	return layout, nil
+}
+
+// userDataHome returns the user data base directory, honoring XDG_DATA_HOME
+// and falling back to ~/.local/share when it is unset or empty.
+func userDataHome() (string, error) {
+	if dir := os.Getenv("XDG_DATA_HOME"); dir != "" {
+		return dir, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".local", "share"), nil
 }
 
 // findSystemLibParent returns the directory that contains the fcitx5 addon
