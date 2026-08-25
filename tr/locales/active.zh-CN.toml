@@ -132,7 +132,7 @@ other = "移除 '{{.Path}}'"
 
 [RootCmdDesc]
 hash = "sha1-dd753efbbbc82d2bad5f3b2a31a2df5b6c0992e1"
-other = "宇梦输入引擎的 CLI 工具"
+other = "宇梦输入系统的 CLI 工具"
 
 [RootFlagJSON]
 hash = "sha1-e040f1c7029649fe5cf404fcc60df7ae31bd6003"
@@ -144,7 +144,7 @@ other = "输出详细信息"
 
 [UninstallingYume]
 hash = "sha1-88078ed6c936e9c5839d51b57535e6853e518aca"
-other = "正在从 {{.Target}} 卸载宇梦引擎..."
+other = "正在从 {{.Target}} 卸载宇梦输入系统..."
 
 [VersionCmdDesc]
 hash = "sha1-6a72928f73393b6f3457a2b5e70c4b3b84b8cc21"
@@ -160,11 +160,11 @@ other = "部分文件未被移除 (pkexec 被拒绝)"
 
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
-other = "管理宇梦引擎的安装, 配置与数据"
+other = "管理宇梦输入系统的安装, 配置与数据"
 
 [YumeInstallCmdDesc]
 hash = "sha1-82a968648ce2b60e729bb4b307946ad2c58d0137"
-other = "安装宇梦引擎"
+other = "安装宇梦输入系统"
 
 [YumeInstallFlagPackage]
 hash = "sha1-603259311084bff8b38ab651a4208b4e6d50c456"
@@ -196,11 +196,11 @@ other = "用户目录"
 
 [YumeUninstallCmdDesc]
 hash = "sha1-9726bf4737334a73a84c16250e3eb2c6dc10166f"
-other = "卸载宇梦引擎"
+other = "卸载宇梦输入系统"
 
 [YumeUninstallConfirm]
 hash = "sha1-933ad2b78af4381069ba69f89381e2d910a88b6b"
-other = "确认从 {{.Targets}} 卸载宇梦引擎?"
+other = "确认从 {{.Targets}} 卸载宇梦输入系统?"
 
 [YumeUninstallConfirmNo]
 hash = "sha1-77dfd2135f4db726c47299bb55be26f7f4525a46"
