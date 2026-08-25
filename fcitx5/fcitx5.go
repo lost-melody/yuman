@@ -99,3 +99,13 @@ func (controller *ControllerImpl) GetAddonConfig(ctx context.Context, addon stri
 	config, err = controller.GetConfig(ctx, fmt.Sprintf("fcitx://config/addon/%s", addon))
 	return
 }
+
+func (controller *ControllerImpl) ReloadConfig(ctx context.Context) (err error) {
+	err = controller.Call(ctx, "ReloadConfig", nil)
+	return
+}
+
+func (controller *ControllerImpl) ReloadAddonConfig(ctx context.Context, addon string) (err error) {
+	err = controller.Call(ctx, "ReloadAddonConfig", dbusproxy.Args{addon})
+	return
+}
