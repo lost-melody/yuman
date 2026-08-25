@@ -30,6 +30,10 @@ other = "解析方案槽位目錄"
 hash = "sha1-19dd10a5d3e47a4b53966ba8373de3e45d5fb499"
 other = "列出方案槽位"
 
+[ErrCompileSlotRemove]
+hash = "sha1-af761d7c72c35f2549e6d456d7c616c364343462"
+other = "移除方案槽位"
+
 [ErrCompileSlotSource]
 hash = "sha1-dad26c0211761847bf783dffb8d3ce24391e3a84"
 other = "註冊方案來源"
@@ -89,6 +93,10 @@ other = "解析安裝佈局"
 [ErrResolveUninstallLayout]
 hash = "sha1-a8bdd5c09c2fd08232ecd4f26c044acf82ece13b"
 other = "解析解除安裝佈局"
+
+[ErrSchemaNotFound]
+hash = "sha1-f6039e9f0ad2cb12b895469e82511c5eb445ff66"
+other = "找不到方案 '{{.Ref}}'"
 
 [ErrStatPackage]
 hash = "sha1-23e390eb9ecf8ce6bfdbf4abaa9ad140e3afee6f"
@@ -174,6 +182,10 @@ other = "{{.Source}} -> {{.Destination}}"
 hash = "sha1-d376f1d0c3fc3807e049a10b0a85d6e63bd2e93b"
 other = "正在將安裝包 '{{.Package}}' 安裝到 {{.Target}}..."
 
+[RemovedSchema]
+hash = "sha1-307576ac64c605b4289022d90d085e5dc960c7bb"
+other = "已移除方案 '{{.ID}}'"
+
 [RemovingFile]
 hash = "sha1-ce1d8a3ebe32aa86309cdabda2c811a8fd1fd07e"
 other = "移除 '{{.Path}}'"
@@ -245,6 +257,22 @@ other = "碼表檔案 (.txt)"
 [YumeCustomListCmdDesc]
 hash = "sha1-1b6b7756e7bb95597d75d5af108dafa35f4b6e4b"
 other = "列出宇夢自訂方案"
+
+[YumeCustomRemoveCmdDesc]
+hash = "sha1-d2d832239797cd3e9be2b6535037e6554cc12be9"
+other = "移除宇夢自訂方案"
+
+[YumeCustomRemoveConfirm]
+hash = "sha1-957ad3fa4999a2af7b59ba4137a501c6e7e0bf65"
+other = "移除方案 '{{.Ref}}'?"
+
+[YumeCustomRemoveConfirmNo]
+hash = "sha1-77dfd2135f4db726c47299bb55be26f7f4525a46"
+other = "取消"
+
+[YumeCustomRemoveConfirmYes]
+hash = "sha1-e963907dac5cd5c017869b4c96c18021c9bd058b"
+other = "移除"
 
 [YumeInstallCmdDesc]
 hash = "sha1-82a968648ce2b60e729bb4b307946ad2c58d0137"

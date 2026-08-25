@@ -50,6 +50,17 @@ var (
 			},
 		}
 	}
+	MsgRemovedSchema = func(id string) *i18n.LocalizeConfig {
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "RemovedSchema",
+				Other: "Removed schema '{{.ID}}'",
+			},
+			TemplateData: map[string]any{
+				"ID": id,
+			},
+		}
+	}
 
 	MsgErrResolveCompile = i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
@@ -98,6 +109,23 @@ var (
 			ID:    "ErrCompileSlotSource",
 			Other: "register schema source",
 		},
+	}
+	MsgErrCompileSlotRemove = i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "ErrCompileSlotRemove",
+			Other: "remove schema slot",
+		},
+	}
+	MsgErrSchemaNotFound = func(ref string) *i18n.LocalizeConfig {
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "ErrSchemaNotFound",
+				Other: "schema '{{.Ref}}' not found",
+			},
+			TemplateData: map[string]any{
+				"Ref": ref,
+			},
+		}
 	}
 )
 
@@ -216,6 +244,38 @@ func ListCustomSchemas(ctx context.Context, verbose bool) ([]CustomSchema, error
 		return nil, wrapError(&MsgErrCompileSlotList, err)
 	}
 	return parseSlotList(out), nil
+}
+
+// FindCustomSchema returns the custom schema matching ref, which may be either
+// a schema id or name.
+func FindCustomSchema(ctx context.Context, ref string, verbose bool) (*CustomSchema, error) {
+	schemas, err := ListCustomSchemas(ctx, verbose)
+	if err != nil {
+		return nil, err
+	}
+	for i := range schemas {
+		if schemas[i].ID == ref || schemas[i].Name == ref {
+			return &schemas[i], nil
+		}
+	}
+	return nil, tr.LocalizeError(MsgErrSchemaNotFound(ref))
+}
+
+// RemoveCustomSchema removes the custom schema with the given id.
+func RemoveCustomSchema(ctx context.Context, id string, verbose bool) error {
+	compile, err := resolveCompileBinary()
+	if err != nil {
+		return wrapError(&MsgErrResolveCompile, err)
+	}
+	root, err := resolveCustomRoot()
+	if err != nil {
+		return wrapError(&MsgErrResolveCustomRoot, err)
+	}
+	if _, err = runCompile(ctx, compile, verbose, "--slot-remove", root, id); err != nil {
+		return wrapError(&MsgErrCompileSlotRemove, err)
+	}
+	fmt.Println(tr.Localize(MsgRemovedSchema(id)))
+	return nil
 }
 
 // findSlotID returns the slot id of an existing schema named name, using the
