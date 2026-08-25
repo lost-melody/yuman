@@ -142,6 +142,10 @@ other = "管理 fcitx5 配置"
 hash = "sha1-d57da0ad9f8f23e51fda35c4cfa6db7a8694d037"
 other = "输出 fcitx5 或其插件的配置信息"
 
+[Fcitx5ConfigOpenCmdDesc]
+hash = "sha1-7066b7f7e5054ea2479d48d661b7de8ad8377578"
+other = "打开 fcitx5 或其插件的配置界面"
+
 [Fcitx5ConfigReloadCmdDesc]
 hash = "sha1-8b4ec78975e96168a3c3a4c41befb10f7f2e630a"
 other = "重载 fcitx5 配置或其插件配置"

@@ -109,3 +109,13 @@ func (controller *ControllerImpl) ReloadAddonConfig(ctx context.Context, addon s
 	err = controller.Call(ctx, "ReloadAddonConfig", dbusproxy.Args{addon})
 	return
 }
+
+func (controller *ControllerImpl) Configure(ctx context.Context) (err error) {
+	err = controller.Call(ctx, "Configure", nil)
+	return
+}
+
+func (controller *ControllerImpl) ConfigureAddon(ctx context.Context, addon string) (err error) {
+	err = controller.Call(ctx, "ConfigureAddon", dbusproxy.Args{addon})
+	return
+}
