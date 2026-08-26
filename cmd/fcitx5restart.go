@@ -26,15 +26,15 @@ var (
 	}
 )
 
-// restartCmd represents the restart command
-var restartCmd = &cobra.Command{
+// fcitx5RestartCmd represents the restart command
+var fcitx5RestartCmd = &cobra.Command{
 	Use:   "restart",
 	Short: tr.Localize(&MsgFcitx5RestartCmdShort),
 	RunE:  runFcitx5Restart,
 }
 
 func init() {
-	fcitx5Cmd.AddCommand(restartCmd)
+	fcitx5Cmd.AddCommand(fcitx5RestartCmd)
 }
 
 func runFcitx5Restart(cmd *cobra.Command, args []string) (err error) {
