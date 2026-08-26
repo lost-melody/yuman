@@ -4,9 +4,14 @@ package fcitx5
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/godbus/dbus/v5"
 	"github.com/lost-melody/yuman/dbusproxy"
+	"github.com/lost-melody/yuman/tr"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 const (
@@ -15,12 +20,29 @@ const (
 	ControllerInterface  string          = "org.fcitx.Fcitx.Controller1"
 )
 
+const (
+	DefaultRestartDelay = 400 * time.Millisecond
+)
+
 type ControllerImpl struct {
 	dbusproxy.Proxy
 }
 
 var Controller = ControllerImpl{
 	Proxy: dbusproxy.New(dbusproxy.BusTypeSession, ServiceDestination, ControllerObjectPath, ControllerInterface),
+}
+
+var MsgExecutingFcitx5RestartCmd = func(cmd *exec.Cmd) *i18n.LocalizeConfig {
+	return &i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "ExecutingFcitx5RestartCmd",
+			Other: "Executing command: {{.Path}} {{.Args}}",
+		},
+		TemplateData: map[string]any{
+			"Path": cmd.Path,
+			"Args": strings.Join(cmd.Args, " "),
+		},
+	}
 }
 
 // Config stores '(va(sa(sssva{sv})))'.
@@ -52,6 +74,16 @@ type AddonInfo struct {
 	Priority     int32  `json:"priority"`
 	Enabled      bool   `json:"enabled"`
 	Configurable bool   `json:"configurable"`
+}
+
+func RestartService(ctx context.Context, verbose bool) (cmd *exec.Cmd, err error) {
+	cmd = exec.CommandContext(ctx, "fcitx5", "-r")
+	if verbose {
+		fmt.Println(tr.Localize(MsgExecutingFcitx5RestartCmd(cmd)))
+	}
+	time.Sleep(DefaultRestartDelay)
+	err = cmd.Start()
+	return
 }
 
 func (controller *ControllerImpl) Activate(ctx context.Context) (err error) {

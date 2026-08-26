@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/lost-melody/yuman/fcitx5"
+	"github.com/lost-melody/yuman/flags"
 	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/spf13/cobra"
@@ -37,6 +38,7 @@ func init() {
 }
 
 func runFcitx5Restart(cmd *cobra.Command, args []string) (err error) {
+	flagVerbose, _ := cmd.Root().Flags().GetBool(flags.Verbose)
 	ctx, cancel := context.WithTimeout(cmd.Context(), time.Second)
 	defer cancel()
 
@@ -49,6 +51,6 @@ func runFcitx5Restart(cmd *cobra.Command, args []string) (err error) {
 		return
 	}
 
-	err = fcitx5.Controller.Restart(ctx)
+	_, err = fcitx5.RestartService(ctx, flagVerbose)
 	return
 }
