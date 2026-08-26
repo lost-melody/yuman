@@ -12,4 +12,5 @@ const (
 	Name    = "name"
 	Table   = "table"
 	Div     = "div"
+	Check   = "check"
 )

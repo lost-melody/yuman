@@ -66,6 +66,10 @@ other = "下载安装包 '{{.URL}}'"
 hash = "sha1-ef09b43c2657f7a6bbd75a150b4fa94de61575d1"
 other = "无法重启 fcitx5 服务"
 
+[ErrFetchRelease]
+hash = "sha1-3d26a49a0b891e2e5476d10cff9ff4b8ff3f779f"
+other = "从 '{{.URL}}' 获取最新 yume 发行版失败"
+
 [ErrFlagsConflict]
 hash = "sha1-0534b83f6f730f9ab90e54c0cd153224ab014187"
 other = "参数 '{{.FlagA}}' 和 '{{.FlagB}}' 相互冲突"
@@ -81,6 +85,14 @@ other = "缺少参数 '{{.Parameter}}'"
 [ErrNoInstallableFiles]
 hash = "sha1-5d080728dec957330e9fb9ed23709e8a95a80280"
 other = "在 '{{.Directory}}' 中未找到可安装的文件"
+
+[ErrNoMatchingAsset]
+hash = "sha1-d518d32cb1d2312189f86533f59f0f687ddc3677"
+other = "没有找到匹配 {{.Arch}} 的 linux 安装包"
+
+[ErrNoRelease]
+hash = "sha1-e77a0b063f063c6244f316df26f7ecf2f2a690df"
+other = "未找到 yume 发行版"
 
 [ErrNothingSelected]
 hash = "sha1-3a441f633310e72cef581f71a3cfd36ed6125650"
@@ -385,6 +397,30 @@ other = "系统目录 (需要 root)"
 [YumeUninstallQuestionUser]
 hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
 other = "用户目录"
+
+[YumeUpdateAvailable]
+hash = "sha1-01e2890ed13f56603643c2889f85a6db04eb2738"
+other = "发现新版本: {{.New}} (当前 {{.Current}})"
+
+[YumeUpdateChecking]
+hash = "sha1-4e3cce70fa7a7c7f9cbe9660fe81e979dfd0fd45"
+other = "正在检查最新 yume 发行版..."
+
+[YumeUpdateCmdDesc]
+hash = "sha1-43e7c9427d64d622bd3fbe718349e20bea9e155a"
+other = "将 yume 引擎更新到最新发行版"
+
+[YumeUpdateFlagCheck]
+hash = "sha1-0cff39af3515ec5a4262bd5e3044040c4025c481"
+other = "仅检查更新, 不执行安装"
+
+[YumeUpdateLatest]
+hash = "sha1-bb91c5d3f4658437c9f359ed47795bea93a227a0"
+other = "最新 yume 版本: {{.Version}}"
+
+[YumeUpdateUpToDate]
+hash = "sha1-53d3eb7063d3aff2f912811a528bec68813465d5"
+other = "yume 已是最新版本 ({{.Version}})"
 
 [YumeVersionCmdDesc]
 hash = "sha1-5bae585816ef202003637f4f4e2a08feedbbcb07"
