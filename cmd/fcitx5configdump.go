@@ -24,8 +24,9 @@ var MsgFcitx5ConfigDumpCmdShort = i18n.LocalizeConfig{
 
 // fcitx5ConfigDumpCmd represents the dump command
 var fcitx5ConfigDumpCmd = &cobra.Command{
-	Use:               "dump",
+	Use:               "dump [flags] [addon]",
 	Short:             tr.Localize(&MsgFcitx5ConfigDumpCmdShort),
+	Args:              cobra.MaximumNArgs(1),
 	RunE:              runFcitx5ConfigDump,
 	ValidArgsFunction: completeFcitx5Addons,
 }

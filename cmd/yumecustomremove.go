@@ -46,7 +46,7 @@ var (
 
 // yumeCustomRemoveCmd represents the remove command
 var yumeCustomRemoveCmd = &cobra.Command{
-	Use:               "remove <id|name>",
+	Use:               "remove [flags] id|name",
 	Short:             tr.Localize(&MsgYumeCustomRemoveCmdShort),
 	Args:              cobra.ExactArgs(1),
 	RunE:              runYumeCustomRemove,

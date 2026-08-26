@@ -126,6 +126,7 @@ var (
 var yumeUninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: tr.Localize(&MsgYumeUninstallCmdShort),
+	Args:  cobra.NoArgs,
 	RunE:  runYumeUninstall,
 }
 

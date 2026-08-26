@@ -86,8 +86,9 @@ var (
 
 // yumeInstallCmd represents the install command
 var yumeInstallCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install [flags] [package]",
 	Short: tr.Localize(&MsgYumeInstallCmdShort),
+	Args:  cobra.MaximumNArgs(1),
 	RunE:  runYumeInstall,
 }
 
@@ -122,6 +123,9 @@ func runYumeInstall(cmd *cobra.Command, args []string) (err error) {
 	}
 	// yume package path.
 	pkgPath, _ := cmd.Flags().GetString(flags.Package)
+	if pkgPath == "" && len(args) != 0 {
+		pkgPath = args[0]
+	}
 	if pkgPath == "" {
 		err = huh.NewFilePicker().
 			Picking(true).

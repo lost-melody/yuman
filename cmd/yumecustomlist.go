@@ -23,6 +23,7 @@ var MsgYumeCustomListCmdShort = i18n.LocalizeConfig{
 var yumeCustomListCmd = &cobra.Command{
 	Use:   "list",
 	Short: tr.Localize(&MsgYumeCustomListCmdShort),
+	Args:  cobra.NoArgs,
 	RunE:  runYumeCustomList,
 }
 

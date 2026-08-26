@@ -60,8 +60,9 @@ var (
 
 // yumeCustomImportCmd represents the import command
 var yumeCustomImportCmd = &cobra.Command{
-	Use:   "import",
+	Use:   "import [flags] [table [division]]",
 	Short: tr.Localize(&MsgYumeCustomImportCmdShort),
+	Args:  cobra.MaximumNArgs(2),
 	RunE:  runYumeCustomImport,
 }
 

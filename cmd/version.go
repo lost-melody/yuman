@@ -21,6 +21,7 @@ var MsgVersionCmdShort = i18n.LocalizeConfig{
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: tr.Localize(&MsgVersionCmdShort),
+	Args:  cobra.NoArgs,
 	RunE:  runVersion,
 }
 

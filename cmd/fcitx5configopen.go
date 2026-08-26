@@ -19,8 +19,9 @@ var MsgFcitx5ConfigOpenCmdShort = i18n.LocalizeConfig{
 
 // fcitx5ConfigOpenCmd represents the open command
 var fcitx5ConfigOpenCmd = &cobra.Command{
-	Use:               "open",
+	Use:               "open [flags] [addon]",
 	Short:             tr.Localize(&MsgFcitx5ConfigOpenCmdShort),
+	Args:              cobra.MaximumNArgs(1),
 	RunE:              runFcitx5ConfigOpen,
 	ValidArgsFunction: completeFcitx5Addons,
 }

@@ -25,6 +25,7 @@ var MsgFcitx5AddonListCmdShort = i18n.LocalizeConfig{
 var fcitx5AddonListCmd = &cobra.Command{
 	Use:   "list",
 	Short: tr.Localize(&MsgFcitx5AddonListCmdShort),
+	Args:  cobra.NoArgs,
 	RunE:  runFcitx5AddonList,
 }
 

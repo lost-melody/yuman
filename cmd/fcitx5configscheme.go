@@ -23,8 +23,9 @@ var MsgFcitx5ConfigSchemeCmdShort = i18n.LocalizeConfig{
 
 // fcitx5ConfigSchemeCmd represents the scheme command
 var fcitx5ConfigSchemeCmd = &cobra.Command{
-	Use:               "scheme",
+	Use:               "scheme [flags] [addon]",
 	Short:             tr.Localize(&MsgFcitx5ConfigSchemeCmdShort),
+	Args:              cobra.MaximumNArgs(1),
 	RunE:              runFcitx5ConfigScheme,
 	ValidArgsFunction: completeFcitx5Addons,
 }

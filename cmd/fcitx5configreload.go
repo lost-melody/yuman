@@ -19,8 +19,9 @@ var MsgFcitx5ConfigReloadCmdShort = i18n.LocalizeConfig{
 
 // fcitx5ConfigReloadCmd represents the reload command
 var fcitx5ConfigReloadCmd = &cobra.Command{
-	Use:               "reload",
+	Use:               "reload [flags] [addon]",
 	Short:             tr.Localize(&MsgFcitx5ConfigReloadCmdShort),
+	Args:              cobra.MaximumNArgs(1),
 	RunE:              runFcitx5ConfigReload,
 	ValidArgsFunction: completeFcitx5Addons,
 }
