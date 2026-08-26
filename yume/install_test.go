@@ -282,3 +282,26 @@ func TestInstallYumeRejectsArchMismatch(t *testing.T) {
 		t.Errorf("libyume was installed despite arch mismatch: %v", err)
 	}
 }
+
+func TestInstalledTargetsUser(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	user, system := InstalledTargets()
+	if user || system {
+		t.Fatalf("InstalledTargets() = (%v, %v), want (false, false)", user, system)
+	}
+
+	lib := filepath.Join(home, ".local", "lib", "fcitx5", libYumeName)
+	if err := os.MkdirAll(filepath.Dir(lib), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(lib, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	user, system = InstalledTargets()
+	if !user || system {
+		t.Fatalf("InstalledTargets() = (%v, %v), want (true, false)", user, system)
+	}
+}

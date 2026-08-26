@@ -101,26 +101,12 @@ func init() {
 
 func runYumeInstall(cmd *cobra.Command, args []string) (err error) {
 	flagVerbose, _ := cmd.Flags().GetBool(flags.Verbose)
-	flagUser, _ := cmd.Flags().GetBool(flags.User)
-	flagSystem, _ := cmd.Flags().GetBool(flags.System)
-	if flagUser && flagSystem {
-		err = tr.LocalizeError(MsgErrFlagsConflict(flags.User, flags.System))
+
+	userDirs, err := resolveInstallTarget(cmd)
+	if err != nil {
 		return
 	}
-	// install into user directories or not.
-	userDirs := flagUser
-	if !flagUser && !flagSystem {
-		userDirs = true
-		err = huh.NewConfirm().
-			Title(tr.Localize(&MsgYumeInstallUserQuestion)).
-			Affirmative(tr.Localize(&MsgYumeInstallUserQuestionYes)).
-			Negative(tr.Localize(&MsgYumeInstallUserQuestionNo)).
-			Value(&userDirs).
-			Run()
-		if err != nil {
-			return
-		}
-	}
+
 	// yume package path.
 	pkgPath, _ := cmd.Flags().GetString(flags.Package)
 	if pkgPath == "" && len(args) != 0 {
@@ -146,4 +132,36 @@ func runYumeInstall(cmd *cobra.Command, args []string) (err error) {
 	}
 	err = yume.InstallYume(cmd.Context(), pkgPath, userDirs, flagVerbose)
 	return
+}
+
+// resolveInstallTarget decides whether an install targets the user or system
+// directories. Explicit flags win; otherwise an existing installation is
+// preferred (user first, then system), and only when neither exists is the
+// user prompted.
+func resolveInstallTarget(cmd *cobra.Command) (userDirs bool, err error) {
+	flagUser, _ := cmd.Flags().GetBool(flags.User)
+	flagSystem, _ := cmd.Flags().GetBool(flags.System)
+	if flagUser && flagSystem {
+		return false, tr.LocalizeError(MsgErrFlagsConflict(flags.User, flags.System))
+	}
+	if flagUser {
+		return true, nil
+	}
+	if flagSystem {
+		return false, nil
+	}
+	if user, found := yume.DetectInstallTarget(); found {
+		return user, nil
+	}
+	userDirs = true
+	err = huh.NewConfirm().
+		Title(tr.Localize(&MsgYumeInstallUserQuestion)).
+		Affirmative(tr.Localize(&MsgYumeInstallUserQuestionYes)).
+		Negative(tr.Localize(&MsgYumeInstallUserQuestionNo)).
+		Value(&userDirs).
+		Run()
+	if err != nil {
+		return false, err
+	}
+	return userDirs, nil
 }

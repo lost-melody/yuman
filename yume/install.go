@@ -341,6 +341,33 @@ func resolveLayout(userDirs bool) (installLayout, error) {
 	return layout, nil
 }
 
+// InstalledTargets reports whether yume is installed in the user and/or
+// system directories, based on the presence of the yume addon library.
+func InstalledTargets() (user, system bool) {
+	if home, err := os.UserHomeDir(); err == nil {
+		userLib := filepath.Join(home, ".local", "lib", "fcitx5", libYumeName)
+		if _, err := os.Stat(userLib); err == nil {
+			user = true
+		}
+	}
+	system = len(globLibYumeFiles()) > 0
+	return user, system
+}
+
+// DetectInstallTarget reports where an existing yume installation lives,
+// preferring the user directories over the system directories. found is false
+// when neither location contains the yume addon library.
+func DetectInstallTarget() (user bool, found bool) {
+	user, system := InstalledTargets()
+	if user {
+		return true, true
+	}
+	if system {
+		return false, true
+	}
+	return false, false
+}
+
 // userDataHome returns the user data base directory, honoring XDG_DATA_HOME
 // and falling back to ~/.local/share when it is unset or empty.
 func userDataHome() (string, error) {

@@ -139,36 +139,14 @@ func init() {
 
 func runYumeUninstall(cmd *cobra.Command, args []string) (err error) {
 	flagVerbose, _ := cmd.Flags().GetBool(flags.Verbose)
-	flagUser, _ := cmd.Flags().GetBool(flags.User)
-	flagSystem, _ := cmd.Flags().GetBool(flags.System)
 	flagPurge, _ := cmd.Flags().GetBool(flags.Purge)
+
+	flagUser, flagSystem, err := resolveUninstallTargets(cmd)
+	if err != nil {
+		return
+	}
 	if !flagUser && !flagSystem {
-		// Uninstall targets: user directories, system directories, or both.
-		var choices []string
-		err = huh.NewMultiSelect[string]().
-			Title(tr.Localize(&MsgYumeUninstallQuestion)).
-			Options(
-				huh.NewOption(tr.Localize(&MsgYumeUninstallQuestionUser), uninstallChoiceUser),
-				huh.NewOption(tr.Localize(&MsgYumeUninstallQuestionSystem), uninstallChoiceSystem),
-			).
-			Value(&choices).
-			Height(3).
-			Run()
-		if err != nil {
-			return
-		}
-		for _, choice := range choices {
-			switch choice {
-			case uninstallChoiceUser:
-				flagUser = true
-			case uninstallChoiceSystem:
-				flagSystem = true
-			}
-		}
-		if !flagUser && !flagSystem {
-			err = tr.LocalizeError(&MsgErrNothingSelected)
-			return
-		}
+		return nil
 	}
 	// Confirm the uninstallation so an accidental key press cannot delete files.
 	var targets []string
@@ -225,4 +203,55 @@ func runYumeUninstall(cmd *cobra.Command, args []string) (err error) {
 		err = yume.UninstallYume(cmd.Context(), false, purge, flagVerbose)
 	}
 	return
+}
+
+// resolveUninstallTargets decides which installations to remove. Explicit
+// flags win; otherwise an existing installation is auto-selected (user or
+// system), and only when both exist is the user prompted to choose. When
+// nothing is installed, it reports so and returns no targets.
+func resolveUninstallTargets(cmd *cobra.Command) (user, system bool, err error) {
+	flagUser, _ := cmd.Flags().GetBool(flags.User)
+	flagSystem, _ := cmd.Flags().GetBool(flags.System)
+	if flagUser || flagSystem {
+		return flagUser, flagSystem, nil
+	}
+
+	installedUser, installedSystem := yume.InstalledTargets()
+	if !installedUser && !installedSystem {
+		fmt.Println(tr.Localize(&MsgYumeNotInstalled))
+		return false, false, nil
+	}
+	if installedUser && !installedSystem {
+		return true, false, nil
+	}
+	if !installedUser && installedSystem {
+		return false, true, nil
+	}
+
+	// Both installations exist: let the user pick one or both.
+	var choices []string
+	err = huh.NewMultiSelect[string]().
+		Title(tr.Localize(&MsgYumeUninstallQuestion)).
+		Options(
+			huh.NewOption(tr.Localize(&MsgYumeUninstallQuestionUser), uninstallChoiceUser),
+			huh.NewOption(tr.Localize(&MsgYumeUninstallQuestionSystem), uninstallChoiceSystem),
+		).
+		Value(&choices).
+		Height(3).
+		Run()
+	if err != nil {
+		return false, false, err
+	}
+	for _, choice := range choices {
+		switch choice {
+		case uninstallChoiceUser:
+			user = true
+		case uninstallChoiceSystem:
+			system = true
+		}
+	}
+	if !user && !system {
+		return false, false, tr.LocalizeError(&MsgErrNothingSelected)
+	}
+	return user, system, nil
 }
