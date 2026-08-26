@@ -27,6 +27,11 @@ tasks:
         "-X {{.GO_PKG}}/cmd.Version={{.VERSION}}
         -X {{.GO_PKG}}/cmd.GitCommit={{.GIT_COMMIT}}"
 
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
   i18n_extract:
     desc: Extract strings from source code
     cmds:
