@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"charm.land/huh/v2"
 	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -181,12 +182,19 @@ func ImportYume(ctx context.Context, name, tablePath, divPath string, verbose bo
 	if err != nil {
 		return wrapError(&MsgErrCompileCustom, err)
 	}
-	// TODO: ask follow-up questions for these lines and re-run --custom with
-	// the extra arguments the answers provide.
-	questions := compileQuestions(customOut)
-	for _, question := range questions {
-		// print questions for now, before we finishing this todo.
-		fmt.Println("Question:", question)
+
+	// yume-compile --custom may ask follow-up questions on stdout. Prompt for
+	// each answer, then re-run --custom with the extra --answers arguments.
+	if questions := compileQuestions(customOut); len(questions) > 0 {
+		answers, askErr := answerCompileQuestions(questions)
+		if askErr != nil {
+			return askErr
+		}
+		customArgs := []string{"--custom", name, tablePath, divOut, slot}
+		customArgs = append(customArgs, compileAnswerArgs(questions, answers)...)
+		if _, err = runCompile(ctx, compile, verbose, customArgs...); err != nil {
+			return wrapError(&MsgErrCompileCustom, err)
+		}
 	}
 
 	if _, err = runCompile(ctx, compile, verbose, "--slot-source", slot, name, tablePath); err != nil {
@@ -385,15 +393,59 @@ func runCompile(ctx context.Context, compile string, verbose bool, args ...strin
 	return stdout.String(), err
 }
 
-// compileQuestions collects the trimmed lines from a yume-compile --custom
-// stdout that start with "?". These ask for extra parameters and need a
-// follow-up interaction before re-running the command.
-func compileQuestions(stdout string) []string {
-	var questions []string
+// CompileQuestion is a follow-up question emitted by yume-compile --custom.
+type CompileQuestion struct {
+	Tag    string
+	Prompt string
+}
+
+// compileQuestions parses the follow-up questions from a yume-compile --custom
+// stdout. Each line is "  ? <tag> <prompt>", where <tag> contains no spaces
+// and is separated from the prompt by whitespace.
+func compileQuestions(stdout string) []CompileQuestion {
+	var questions []CompileQuestion
 	for line := range strings.SplitSeq(stdout, "\n") {
-		if strings.HasPrefix(strings.TrimSpace(line), "?") {
-			questions = append(questions, line)
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "?") {
+			continue
 		}
+		rest := strings.TrimSpace(strings.TrimPrefix(line, "?"))
+		tag, prompt, ok := strings.Cut(rest, " ")
+		if !ok {
+			tag, prompt = rest, ""
+		}
+		if tag == "" {
+			continue
+		}
+		questions = append(questions, CompileQuestion{Tag: tag, Prompt: strings.TrimSpace(prompt)})
 	}
 	return questions
+}
+
+// answerCompileQuestions prompts for each follow-up question via huh and
+// returns the answers in the same order as the questions.
+func answerCompileQuestions(questions []CompileQuestion) ([]string, error) {
+	answers := make([]string, len(questions))
+	fields := make([]huh.Field, len(questions))
+	for i, question := range questions {
+		title := question.Prompt
+		if title == "" {
+			title = question.Tag
+		}
+		fields[i] = huh.NewInput().Title(title).Value(&answers[i])
+	}
+	if err := huh.NewForm(huh.NewGroup(fields...)).Run(); err != nil {
+		return nil, err
+	}
+	return answers, nil
+}
+
+// compileAnswerArgs builds the --answers arguments appended to a re-run of
+// yume-compile --custom, one "--answers <tag>=<value>" pair per question.
+func compileAnswerArgs(questions []CompileQuestion, answers []string) []string {
+	args := make([]string, 0, len(questions)*2)
+	for i, question := range questions {
+		args = append(args, "--answers", question.Tag+"="+answers[i])
+	}
+	return args
 }
