@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"path/filepath"
 	"time"
 
 	"charm.land/huh/v2"
@@ -78,6 +79,17 @@ func runYumeCustomImport(cmd *cobra.Command, args []string) (err error) {
 	name, _ := cmd.Flags().GetString(flags.Name)
 	tablePath, _ := cmd.Flags().GetString(flags.Table)
 	divPath, _ := cmd.Flags().GetString(flags.Div)
+
+	if tablePath == "" && len(args) != 0 {
+		tablePath = args[0]
+	}
+	if divPath == "" && len(args) >= 2 {
+		divPath = args[1]
+	}
+	if name == "" && tablePath != "" {
+		ext := filepath.Ext(tablePath)
+		name = filepath.Base(tablePath[:len(tablePath)-len(ext)])
+	}
 
 	err = huh.NewForm(
 		huh.NewGroup(
