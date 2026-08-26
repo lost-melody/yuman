@@ -2,7 +2,9 @@ package yume
 
 import (
 	"context"
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -87,31 +89,123 @@ func TestResolveCustomRoot(t *testing.T) {
 }
 
 func TestResolveCompileBinary(t *testing.T) {
-	exe, err := os.Executable()
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := filepath.Join(filepath.Dir(exe), compileBinaryName)
+	// Prevent the $HOME/.local/bin fallback from matching the developer's own
+	// yume-compile during tests.
+	t.Setenv("HOME", t.TempDir())
 
-	got, err := resolveCompileBinary()
-	if err != nil {
-		t.Fatal(err)
+	writeExec := func(t *testing.T, path string) {
+		t.Helper()
+		if err := os.WriteFile(path, []byte("#!/bin/sh\n"), 0o755); err != nil {
+			t.Fatal(err)
+		}
 	}
-	if got != want {
-		t.Errorf("resolveCompileBinary() = %q, want %q", got, want)
-	}
+
+	t.Run("prefers PATH", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := filepath.Join(dir, compileBinaryName)
+		writeExec(t, bin)
+		t.Setenv("PATH", dir)
+
+		got, err := resolveCompileBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != bin {
+			t.Errorf("resolveCompileBinary() = %q, want %q", got, bin)
+		}
+	})
+
+	t.Run("falls back to executable dir", func(t *testing.T) {
+		t.Setenv("PATH", t.TempDir())
+
+		dir := t.TempDir()
+		bin := filepath.Join(dir, compileBinaryName)
+		writeExec(t, bin)
+		prev := executablePath
+		executablePath = func() (string, error) { return filepath.Join(dir, "yuman"), nil }
+		t.Cleanup(func() { executablePath = prev })
+
+		got, err := resolveCompileBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != bin {
+			t.Errorf("resolveCompileBinary() = %q, want %q", got, bin)
+		}
+	})
+
+	t.Run("follows symlinked executable", func(t *testing.T) {
+		t.Setenv("PATH", t.TempDir())
+
+		realDir := t.TempDir()
+		realExe := filepath.Join(realDir, "yuman")
+		writeExec(t, realExe)
+		bin := filepath.Join(realDir, compileBinaryName)
+		writeExec(t, bin)
+
+		link := filepath.Join(t.TempDir(), "yuman")
+		if err := os.Symlink(realExe, link); err != nil {
+			t.Fatal(err)
+		}
+		prev := executablePath
+		executablePath = func() (string, error) { return link, nil }
+		t.Cleanup(func() { executablePath = prev })
+
+		got, err := resolveCompileBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != bin {
+			t.Errorf("resolveCompileBinary() = %q, want %q", got, bin)
+		}
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		t.Setenv("PATH", t.TempDir())
+
+		prev := executablePath
+		executablePath = func() (string, error) { return filepath.Join(t.TempDir(), "yuman"), nil }
+		t.Cleanup(func() { executablePath = prev })
+
+		if _, err := resolveCompileBinary(); !errors.Is(err, exec.ErrNotFound) {
+			t.Errorf("resolveCompileBinary() err = %v, want exec.ErrNotFound", err)
+		}
+	})
 }
 
 func TestCompileQuestions(t *testing.T) {
-	stdout := "  ? first question\nplain line\n?second question\n"
+	stdout := "  ? name Your name?\nplain line\n?age How old are you?\n?single\n"
 	got := compileQuestions(stdout)
-	want := []string{"  ? first question", "?second question"}
+	want := []CompileQuestion{
+		{Tag: "name", Prompt: "Your name?"},
+		{Tag: "age", Prompt: "How old are you?"},
+		{Tag: "single", Prompt: ""},
+	}
 	if len(got) != len(want) {
-		t.Fatalf("compileQuestions() = %q, want %q", got, want)
+		t.Fatalf("compileQuestions() = %+v, want %+v", got, want)
 	}
 	for i := range want {
 		if got[i] != want[i] {
-			t.Errorf("compileQuestions()[%d] = %q, want %q", i, got[i], want[i])
+			t.Errorf("compileQuestions()[%d] = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}
+
+func TestCompileAnswerArgs(t *testing.T) {
+	questions := []CompileQuestion{
+		{Tag: "name", Prompt: "Your name?"},
+		{Tag: "age", Prompt: "How old are you?"},
+	}
+	answers := []string{"alice", "30"}
+
+	got := compileAnswerArgs(questions, answers)
+	want := []string{"--answers", "name=alice", "--answers", "age=30"}
+	if len(got) != len(want) {
+		t.Fatalf("compileAnswerArgs() = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("compileAnswerArgs()[%d] = %q, want %q", i, got[i], want[i])
 		}
 	}
 }

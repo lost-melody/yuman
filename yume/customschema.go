@@ -197,14 +197,50 @@ func ImportYume(ctx context.Context, name, tablePath, divPath string, verbose bo
 	return nil
 }
 
-// resolveCompileBinary returns the yume-compile helper next to the running
-// yuman executable.
+// executablePath resolves the path of the running yuman executable. It is a
+// package var so tests can redirect it.
+var executablePath = os.Executable
+
+// resolveCompileBinary returns the yume-compile helper: a copy already on
+// PATH is preferred, otherwise the copy shipped next to the running yuman
+// binary is used (following symlinks).
 func resolveCompileBinary() (string, error) {
-	exe, err := os.Executable()
+	if path, err := exec.LookPath(compileBinaryName); err == nil {
+		return path, nil
+	}
+
+	// $HOME/.local/bin is also considered as in $PATH.
+	home, _ := os.UserHomeDir()
+	if home != "" {
+		candidate := filepath.Join(home, ".local", "bin", compileBinaryName)
+		if info, statErr := os.Stat(candidate); statErr == nil && !info.IsDir() {
+			return candidate, nil
+		}
+	}
+
+	exe, err := executablePath()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(filepath.Dir(exe), compileBinaryName), nil
+	for _, dir := range compileBinaryDirs(exe) {
+		candidate := filepath.Join(dir, compileBinaryName)
+		if info, statErr := os.Stat(candidate); statErr == nil && !info.IsDir() {
+			return candidate, nil
+		}
+	}
+
+	return "", exec.ErrNotFound
+}
+
+// compileBinaryDirs returns the candidate directories that may hold the
+// yume-compile helper, in lookup order: the directory of the running
+// executable, then the directory of its resolved (symlink-free) path.
+func compileBinaryDirs(exe string) []string {
+	dirs := []string{filepath.Dir(exe)}
+	if real, err := filepath.EvalSymlinks(exe); err == nil && filepath.Dir(real) != dirs[0] {
+		dirs = append(dirs, filepath.Dir(real))
+	}
+	return dirs
 }
 
 // resolveCustomRoot returns the directory that holds custom schema slots,
