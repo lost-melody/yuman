@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/lost-melody/yuman/tr"
@@ -28,6 +30,8 @@ type installLayout struct {
 	shareDir  string // base share dir, e.g. /usr/share or ~/.local/share
 	yumeDir   string // yume data dir, ~/.local/share/yume or /usr/share/yume
 	localeDir string // gettext locale dir
+	binDir    string // executables dir, /usr/bin or ~/.local/bin
+	fontsDir  string // bundled fonts dir, /usr/share/fonts/yume or ~/.local/share/fonts/yume
 }
 
 // installOp is a single file copy to perform during installation.
@@ -95,6 +99,40 @@ var (
 			TemplateData: map[string]any{
 				"Package": pkg,
 				"Target":  target,
+			},
+		}
+	}
+	MsgDownloadingPackage = func(url string) *i18n.LocalizeConfig {
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "DownloadingPackage",
+				Other: "Downloading package '{{.URL}}'...",
+			},
+			TemplateData: map[string]any{
+				"URL": url,
+			},
+		}
+	}
+	MsgErrDownloadPackage = func(url string) *i18n.LocalizeConfig {
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "ErrDownloadPackage",
+				Other: "download package '{{.URL}}'",
+			},
+			TemplateData: map[string]any{
+				"URL": url,
+			},
+		}
+	}
+	MsgErrArchMismatch = func(pkgArch, hostArch string) *i18n.LocalizeConfig {
+		return &i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "ErrArchMismatch",
+				Other: "package architecture '{{.PackageArch}}' does not match this machine ({{.HostArch}})",
+			},
+			TemplateData: map[string]any{
+				"PackageArch": pkgArch,
+				"HostArch":    hostArch,
 			},
 		}
 	}
@@ -206,11 +244,25 @@ func wrapError(cfg *i18n.LocalizeConfig, cause error) error {
 // they are installed through pkexec as a best-effort step: a declined pkexec
 // prompt only skips the locale files and does not abort the installation.
 func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose bool) (err error) {
+	displayPath := pkgPath
+	if isURL(pkgPath) {
+		fmt.Println(tr.Localize(MsgDownloadingPackage(pkgPath)))
+		var downloaded string
+		downloaded, err = downloadPackage(ctx, pkgPath)
+		if err != nil {
+			return wrapError(MsgErrDownloadPackage(pkgPath), err)
+		}
+		defer func() {
+			_ = os.Remove(downloaded)
+		}()
+		pkgPath = downloaded
+	}
+
 	target := tr.Localize(&MsgInstallUserDirs)
 	if !userDirs {
 		target = tr.Localize(&MsgInstallSystemDirs)
 	}
-	fmt.Println(tr.Localize(MsgInstallingPackage(pkgPath, target)))
+	fmt.Println(tr.Localize(MsgInstallingPackage(displayPath, target)))
 
 	layout, err := resolveLayout(userDirs)
 	if err != nil {
@@ -241,13 +293,22 @@ func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose boo
 		srcDir = tmpDir
 	}
 
+	if err = checkArch(srcDir); err != nil {
+		return err
+	}
+
 	if userDirs {
 		if err = writeFcitx5Environment(); err != nil {
 			return err
 		}
 	}
 
-	return installFromDir(ctx, srcDir, layout, userDirs, verbose)
+	if err = installFromDir(ctx, srcDir, layout, userDirs, verbose); err != nil {
+		return err
+	}
+
+	printVersionInfo(srcDir)
+	return nil
 }
 
 // resolveLayout computes the destination directories for an install.
@@ -265,10 +326,14 @@ func resolveLayout(userDirs bool) (installLayout, error) {
 		layout.libDir = filepath.Join(home, ".local", "lib")
 		layout.shareDir = dataHome
 		layout.yumeDir = filepath.Join(dataHome, "yume")
+		layout.binDir = filepath.Join(home, ".local", "bin")
+		layout.fontsDir = filepath.Join(dataHome, "fonts", "yume")
 	} else {
 		layout.libDir = findSystemLibParent()
 		layout.shareDir = "/usr/share"
-		layout.yumeDir = "/usr/share/yume"
+		layout.yumeDir = systemYumeDir
+		layout.binDir = "/usr/bin"
+		layout.fontsDir = "/usr/share/fonts/yume"
 	}
 	// Locale files always go to the system directory: fcitx5 does not load
 	// translations from user directories.
@@ -351,9 +416,19 @@ func destinationFor(rel string, layout installLayout) (string, bool) {
 	case strings.HasPrefix(rel, "share/fcitx5/"):
 		sub := strings.TrimPrefix(rel, "share/")
 		return filepath.Join(layout.shareDir, filepath.FromSlash(sub)), true
+	case strings.HasPrefix(rel, "share/yume/Fonts/"):
+		sub := strings.TrimPrefix(rel, "share/yume/Fonts/")
+		if !strings.EqualFold(filepath.Ext(sub), ".ttf") {
+			return "", false
+		}
+		// Fonts are installed flat into the font directory.
+		return filepath.Join(layout.fontsDir, filepath.Base(filepath.FromSlash(sub))), true
 	case strings.HasPrefix(rel, "share/yume/"):
 		sub := strings.TrimPrefix(rel, "share/yume/")
 		return filepath.Join(layout.yumeDir, filepath.FromSlash(sub)), true
+	case strings.HasPrefix(rel, "bin/"):
+		sub := strings.TrimPrefix(rel, "bin/")
+		return filepath.Join(layout.binDir, filepath.FromSlash(sub)), true
 	case strings.HasPrefix(rel, "locale/"):
 		base := filepath.Base(rel)
 		if strings.HasPrefix(base, yumeLocaleDomain+"-") && strings.HasSuffix(base, ".mo") {
@@ -369,6 +444,89 @@ func destinationFor(rel string, layout installLayout) (string, bool) {
 func isTarGz(pkgPath string) bool {
 	lower := strings.ToLower(pkgPath)
 	return strings.HasSuffix(lower, ".tar.gz") || strings.HasSuffix(lower, ".tgz")
+}
+
+// isURL reports whether pkgPath is an http(s) URL that must be downloaded.
+func isURL(pkgPath string) bool {
+	return strings.HasPrefix(pkgPath, "http://") || strings.HasPrefix(pkgPath, "https://")
+}
+
+// downloadPackage downloads the package at url into a temporary .tar.gz file
+// and returns its path. The caller is responsible for removing the file.
+func downloadPackage(ctx context.Context, url string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status %s", resp.Status)
+	}
+
+	f, err := os.CreateTemp("", "yume-download-*.tar.gz")
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+	if _, err := io.Copy(f, resp.Body); err != nil {
+		_ = os.Remove(f.Name())
+		return "", err
+	}
+	return f.Name(), nil
+}
+
+// printVersionInfo prints the version, build and arch fields from the package's
+// share/yume/VERSION file, ignoring everything else.
+func printVersionInfo(srcDir string) {
+	v, err := PackageVersion(srcDir)
+	if err != nil {
+		return
+	}
+	fmt.Printf("%+v\n", v)
+}
+
+// hostArch is the local machine architecture, expressed as a runtime.GOARCH
+// value. It is a variable so tests can override it.
+var hostArch = runtime.GOARCH
+
+// machineArch maps a Go architecture name (runtime.GOARCH) to the uname -m
+// style used by share/yume/VERSION.
+func machineArch(goarch string) string {
+	switch goarch {
+	case "amd64":
+		return "x86_64"
+	case "arm64":
+		return "aarch64"
+	case "386":
+		return "i686"
+	case "loong64":
+		return "loongarch64"
+	default:
+		return goarch
+	}
+}
+
+// checkArch verifies that the arch field in the package's share/yume/VERSION
+// matches the local machine. A missing or unreadable VERSION (or arch field) is
+// tolerated; only an explicit mismatch is an error.
+func checkArch(srcDir string) error {
+	v, err := PackageVersion(srcDir)
+	if err != nil || v.Arch == "" {
+		return nil
+	}
+	local := machineArch(hostArch)
+	if v.Arch != local {
+		return tr.LocalizeError(MsgErrArchMismatch(v.Arch, local))
+	}
+	return nil
 }
 
 // extractTarGz unpacks a gzipped tarball into destDir, preserving file modes

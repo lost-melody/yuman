@@ -82,13 +82,14 @@ func TestYumeDataDir(t *testing.T) {
 
 func TestPlanUserUninstall(t *testing.T) {
 	home := "/home/test"
-	plan := planUserUninstall(home)
+	plan := planUserUninstall(home, nil)
 
 	wantFiles := []string{
 		filepath.Join(home, ".local", "lib", "fcitx5", libYumeName),
 		filepath.Join(home, ".local", "share", "fcitx5", "addon", "yume.conf"),
 		filepath.Join(home, ".local", "share", "fcitx5", "inputmethod", "yume.conf"),
 		filepath.Join(home, ".config", "environment.d", environmentFileName),
+		filepath.Join(home, ".local", "bin", compileBinaryName),
 	}
 	if !slices.Equal(plan.files, wantFiles) {
 		t.Errorf("plan.files = %v, want %v", plan.files, wantFiles)
@@ -99,6 +100,8 @@ func TestPlanUserUninstall(t *testing.T) {
 		filepath.Join(home, ".local", "share", "fcitx5", "inputmethod"),
 		filepath.Join(home, ".local", "share", "fcitx5"),
 		filepath.Join(home, ".config", "environment.d"),
+		userFontsDir(home),
+		filepath.Join(home, ".local", "share", "fonts"),
 	}
 	if !slices.Equal(plan.tidyDirs, wantTidy) {
 		t.Errorf("plan.tidyDirs = %v, want %v", plan.tidyDirs, wantTidy)
@@ -116,6 +119,7 @@ func TestPlanSystemUninstall(t *testing.T) {
 		libYume,
 		filepath.Join(systemShareDir, "fcitx5", "addon", "yume.conf"),
 		filepath.Join(systemShareDir, "fcitx5", "inputmethod", "yume.conf"),
+		filepath.Join("/usr/bin", compileBinaryName),
 		mo,
 	}
 	wantTidy := []string{
@@ -125,10 +129,12 @@ func TestPlanSystemUninstall(t *testing.T) {
 		filepath.Join(systemShareDir, "fcitx5"),
 		filepath.Dir(mo),
 		filepath.Dir(filepath.Dir(mo)),
+		systemFontsDir,
+		filepath.Dir(systemFontsDir),
 	}
 
 	for _, purge := range []bool{false, true} {
-		plan := planSystemUninstall(home, []string{libYume}, []string{mo}, purge)
+		plan := planSystemUninstall(home, []string{libYume}, []string{mo}, nil, purge)
 		if !slices.Equal(plan.files, wantFiles) {
 			t.Errorf("purge=%v: plan.files = %v, want %v", purge, plan.files, wantFiles)
 		}
@@ -293,7 +299,7 @@ func setupUserInstall(t *testing.T) (home string, files []string) {
 		systemLocaleDir = oldLocaleDir
 	})
 
-	files = planUserUninstall(home).files
+	files = planUserUninstall(home, nil).files
 	for _, path := range files {
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatal(err)
@@ -331,7 +337,7 @@ func TestUninstallYumeUserDirsKeepsDataWithoutPurge(t *testing.T) {
 		}
 	}
 	// Directories that only contained yume files are tidied up as well.
-	for _, path := range planUserUninstall(home).tidyDirs {
+	for _, path := range planUserUninstall(home, nil).tidyDirs {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
 			t.Errorf("empty dir %s still exists: %v", path, err)
 		}
@@ -392,5 +398,58 @@ func TestShellQuoteAll(t *testing.T) {
 	want := []string{`'a b'`, `'c'\''d'`}
 	if !slices.Equal(got, want) {
 		t.Errorf("shellQuoteAll() = %v, want %v", got, want)
+	}
+}
+
+func TestFontFiles(t *testing.T) {
+	fontsDir := t.TempDir()
+	ttf := filepath.Join(fontsDir, "yume.ttf")
+	upper := filepath.Join(fontsDir, "Yume.TTF")
+	other := filepath.Join(fontsDir, "readme.txt")
+	for _, path := range []string{ttf, upper, other} {
+		if err := os.WriteFile(path, []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	got := fontFiles(fontsDir)
+	// os.ReadDir returns entries sorted by name, so the uppercase name first.
+	want := []string{upper, ttf}
+	if !slices.Equal(got, want) {
+		t.Errorf("fontFiles() = %v, want %v", got, want)
+	}
+	if got := fontFiles(filepath.Join(fontsDir, "missing")); got != nil {
+		t.Errorf("fontFiles(missing) = %v, want nil", got)
+	}
+}
+
+func TestFontTidyDirs(t *testing.T) {
+	want := []string{"/share/fonts/yume", "/share/fonts"}
+	if got := fontTidyDirs("/share/fonts/yume"); !slices.Equal(got, want) {
+		t.Errorf("fontTidyDirs() = %v, want %v", got, want)
+	}
+}
+
+func TestUninstallYumeUserDirsRemovesFonts(t *testing.T) {
+	home, _ := setupUserInstall(t)
+
+	fontsDir := userFontsDir(home)
+	ttf := filepath.Join(fontsDir, "yume.ttf")
+	if err := os.MkdirAll(fontsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(ttf, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := UninstallYume(context.Background(), true, false, false); err != nil {
+		t.Fatalf("UninstallYume() error = %v", err)
+	}
+
+	if _, err := os.Stat(ttf); !os.IsNotExist(err) {
+		t.Errorf("font still exists: %v", err)
+	}
+	if _, err := os.Stat(fontsDir); !os.IsNotExist(err) {
+		t.Errorf("font dir still exists: %v", err)
 	}
 }

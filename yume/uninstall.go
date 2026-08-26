@@ -17,6 +17,9 @@ const libYumeName = "libyume.so"
 // systemShareDir is where a system install puts the fcitx5 configuration.
 const systemShareDir = "/usr/share"
 
+// systemFontsDir is where a system install puts the bundled fonts.
+const systemFontsDir = "/usr/share/fonts/yume"
+
 // systemLocaleDir is the system gettext directory; fcitx5 does not load
 // translations from user directories. It is a variable so tests can point it
 // at a temporary directory.
@@ -114,7 +117,7 @@ func UninstallYume(ctx context.Context, userDirs, purge bool, verbose bool) (err
 // uninstallUserDirs removes a user install: the user files first, then the
 // purged data directory, and finally the system locale files.
 func uninstallUserDirs(ctx context.Context, home string, purge bool, verbose bool) error {
-	if err := runUninstallPlan(ctx, planUserUninstall(home), false, verbose); err != nil {
+	if err := runUninstallPlan(ctx, planUserUninstall(home, fontFiles(userFontsDir(home))), false, verbose); err != nil {
 		return err
 	}
 
@@ -149,7 +152,7 @@ func uninstallUserDirs(ctx context.Context, home string, purge bool, verbose boo
 
 // uninstallSystemDirs removes a system install with a single pkexec command.
 func uninstallSystemDirs(ctx context.Context, home string, purge bool, verbose bool) error {
-	plan := planSystemUninstall(home, globLibYumeFiles(), localeMoFiles(systemLocaleDir), purge)
+	plan := planSystemUninstall(home, globLibYumeFiles(), localeMoFiles(systemLocaleDir), fontFiles(systemFontsDir), purge)
 	return runUninstallPlan(ctx, plan, true, verbose)
 }
 
@@ -157,6 +160,32 @@ func uninstallSystemDirs(ctx context.Context, home string, purge bool, verbose b
 // regardless of the install mode.
 func yumeDataDir(home string) string {
 	return filepath.Join(home, ".local", "share", "yume")
+}
+
+// userFontsDir returns where a user install puts the bundled fonts.
+func userFontsDir(home string) string {
+	return filepath.Join(home, ".local", "share", "fonts", "yume")
+}
+
+// fontFiles returns every .ttf file installed under fontsDir.
+func fontFiles(fontsDir string) []string {
+	entries, err := os.ReadDir(fontsDir)
+	if err != nil {
+		return nil
+	}
+	var files []string
+	for _, e := range entries {
+		if !e.IsDir() && strings.EqualFold(filepath.Ext(e.Name()), ".ttf") {
+			files = append(files, filepath.Join(fontsDir, e.Name()))
+		}
+	}
+	return files
+}
+
+// fontTidyDirs returns the directories that may be left empty once the bundled
+// fonts are removed: the font directory itself and its parent.
+func fontTidyDirs(fontsDir string) []string {
+	return []string{fontsDir, filepath.Dir(fontsDir)}
 }
 
 // ExistingYumeDataDir returns the yume user data directory when it exists.
@@ -174,35 +203,43 @@ func ExistingYumeDataDir() (string, bool) {
 	return dir, true
 }
 
-// planUserUninstall lists the files a user install wrote. The yume data
-// directory is planned separately because removing it may need pkexec.
-func planUserUninstall(home string) uninstallPlan {
-	return uninstallPlan{
-		files: []string{
-			filepath.Join(home, ".local", "lib", "fcitx5", libYumeName),
-			filepath.Join(home, ".local", "share", "fcitx5", "addon", "yume.conf"),
-			filepath.Join(home, ".local", "share", "fcitx5", "inputmethod", "yume.conf"),
-			filepath.Join(home, ".config", "environment.d", environmentFileName),
-		},
-		tidyDirs: []string{
-			filepath.Join(home, ".local", "lib", "fcitx5"),
-			filepath.Join(home, ".local", "share", "fcitx5", "addon"),
-			filepath.Join(home, ".local", "share", "fcitx5", "inputmethod"),
-			filepath.Join(home, ".local", "share", "fcitx5"),
-			filepath.Join(home, ".config", "environment.d"),
-		},
+// planUserUninstall lists the files a user install wrote. fonts holds the
+// installed .ttf files under the user font directory. The yume data directory
+// is planned separately because removing it may need pkexec.
+func planUserUninstall(home string, fonts []string) uninstallPlan {
+	fontsDir := userFontsDir(home)
+	files := []string{
+		filepath.Join(home, ".local", "lib", "fcitx5", libYumeName),
+		filepath.Join(home, ".local", "share", "fcitx5", "addon", "yume.conf"),
+		filepath.Join(home, ".local", "share", "fcitx5", "inputmethod", "yume.conf"),
+		filepath.Join(home, ".config", "environment.d", environmentFileName),
+		filepath.Join(home, ".local", "bin", compileBinaryName),
 	}
+	files = append(files, fonts...)
+
+	tidyDirs := []string{
+		filepath.Join(home, ".local", "lib", "fcitx5"),
+		filepath.Join(home, ".local", "share", "fcitx5", "addon"),
+		filepath.Join(home, ".local", "share", "fcitx5", "inputmethod"),
+		filepath.Join(home, ".local", "share", "fcitx5"),
+		filepath.Join(home, ".config", "environment.d"),
+	}
+	tidyDirs = append(tidyDirs, fontTidyDirs(fontsDir)...)
+
+	return uninstallPlan{files: files, tidyDirs: tidyDirs}
 }
 
 // planSystemUninstall lists the files a system install wrote. libYumes are the
-// existing addon library locations and mos the existing gettext catalogs,
-// both normally discovered by globbing the system directories. The yume data
-// directory holds user data and is only included when purging.
-func planSystemUninstall(home string, libYumes, mos []string, purge bool) uninstallPlan {
+// existing addon library locations, mos the existing gettext catalogs and
+// fonts the installed .ttf files, all normally discovered by globbing the
+// system directories. The yume data directory holds user data and is only
+// included when purging.
+func planSystemUninstall(home string, libYumes, mos, fonts []string, purge bool) uninstallPlan {
 	plan := uninstallPlan{
 		files: append(append([]string{}, libYumes...),
 			filepath.Join(systemShareDir, "fcitx5", "addon", "yume.conf"),
 			filepath.Join(systemShareDir, "fcitx5", "inputmethod", "yume.conf"),
+			filepath.Join("/usr/bin", compileBinaryName),
 		),
 	}
 	if purge {
@@ -210,6 +247,7 @@ func planSystemUninstall(home string, libYumes, mos []string, purge bool) uninst
 		plan.dirs = []string{yumeDataDir(home)}
 	}
 	plan.files = append(plan.files, mos...)
+	plan.files = append(plan.files, fonts...)
 	for _, lib := range libYumes {
 		plan.tidyDirs = append(plan.tidyDirs, filepath.Dir(lib))
 	}
@@ -219,6 +257,7 @@ func planSystemUninstall(home string, libYumes, mos []string, purge bool) uninst
 		filepath.Join(systemShareDir, "fcitx5"),
 	)
 	plan.tidyDirs = append(plan.tidyDirs, localeTidyDirs(mos)...)
+	plan.tidyDirs = append(plan.tidyDirs, fontTidyDirs(systemFontsDir)...)
 	return plan
 }
 

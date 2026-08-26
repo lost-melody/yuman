@@ -31,7 +31,7 @@ var (
 	MsgYumeInstallFlagPackage = i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "YumeInstallFlagPackage",
-			Other: "Package path of yume release",
+			Other: "Package path or URL of yume release (.tar.gz)",
 		},
 	}
 	MsgYumeInstallUserQuestion = i18n.LocalizeConfig{
