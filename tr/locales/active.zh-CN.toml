@@ -1,3 +1,11 @@
+[DownloadingPackage]
+hash = "sha1-7e9552f75697a004646701690c3d7f32e395776f"
+other = "正在下载安装包 '{{.URL}}'..."
+
+[ErrArchMismatch]
+hash = "sha1-8a1960c9c7baf12c250e0d48eaa4ecacf2698c70"
+other = "安装包架构 '{{.PackageArch}}' 与本机 ({{.HostArch}}) 不匹配"
+
 [ErrArchiveAbsolutePath]
 hash = "sha1-3e39346e07a8ddf8e5f9f8e05145882071098389"
 other = "压缩包条目包含绝对路径: '{{.Name}}'"
@@ -49,6 +57,10 @@ other = "创建 environment.d 目录"
 [ErrCreateTempDir]
 hash = "sha1-5fb7fc1643579c6442294a57505076327513acca"
 other = "创建临时目录"
+
+[ErrDownloadPackage]
+hash = "sha1-955c2d1604e55645bb34f44205f0c0a43cba8a06"
+other = "下载安装包 '{{.URL}}'"
 
 [ErrFcitx5CannotRestart]
 hash = "sha1-ef09b43c2657f7a6bbd75a150b4fa94de61575d1"
@@ -121,6 +133,10 @@ other = "不支持的安装包 '{{.Package}}': 应为目录或 .tar.gz 压缩包
 [ErrWriteEnvironmentFile]
 hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
 other = "写入 '{{.Path}}'"
+
+[ExecutingFcitx5RestartCmd]
+hash = "sha1-378ba07bb45b9a3705c6b0e15cc1884d1b23dd36"
+other = "执行命令: {{.Path}} {{.Args}}"
 
 [Fcitx5AddonCmdDesc]
 hash = "sha1-1248b4c7cfad7f8838c4799a2c3ea21b90360302"
@@ -283,8 +299,8 @@ hash = "sha1-82a968648ce2b60e729bb4b307946ad2c58d0137"
 other = "安装宇梦输入系统"
 
 [YumeInstallFlagPackage]
-hash = "sha1-603259311084bff8b38ab651a4208b4e6d50c456"
-other = "宇梦安装包路径"
+hash = "sha1-e219dcafe5ab967c7809c23f13043d1f3bc2df63"
+other = "宇梦安装包路径或 URL (.tar.gz)"
 
 [YumeInstallFlagSystem]
 hash = "sha1-fffc1c7b6e92faf6884891ff117100fec6e537a4"
@@ -309,6 +325,10 @@ other = "系统目录 (需要 root)"
 [YumeInstallUserQuestionYes]
 hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
 other = "用户目录"
+
+[YumeNotInstalled]
+hash = "sha1-aea3ab36de7da57392b9ac9cbd9809f51e4368d8"
+other = "尚未安装宇梦"
 
 [YumeUninstallCmdDesc]
 hash = "sha1-9726bf4737334a73a84c16250e3eb2c6dc10166f"
@@ -365,3 +385,7 @@ other = "系统目录 (需要 root)"
 [YumeUninstallQuestionUser]
 hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
 other = "用户目录"
+
+[YumeVersionCmdDesc]
+hash = "sha1-5bae585816ef202003637f4f4e2a08feedbbcb07"
+other = "打印已安装宇梦引擎的版本"
