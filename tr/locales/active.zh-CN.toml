@@ -72,7 +72,7 @@ other = "无法重启 fcitx5 服务"
 
 [ErrFetchRelease]
 hash = "sha1-3d26a49a0b891e2e5476d10cff9ff4b8ff3f779f"
-other = "从 '{{.URL}}' 获取最新 yume 发行版失败"
+other = "从 '{{.URL}}' 获取最新宇梦发行版失败"
 
 [ErrFlagsConflict]
 hash = "sha1-0534b83f6f730f9ab90e54c0cd153224ab014187"
@@ -96,7 +96,7 @@ other = "没有找到匹配 {{.Arch}} 的 linux 安装包"
 
 [ErrNoRelease]
 hash = "sha1-e77a0b063f063c6244f316df26f7ecf2f2a690df"
-other = "未找到 yume 发行版"
+other = "未找到宇梦发行版"
 
 [ErrNothingSelected]
 hash = "sha1-3a441f633310e72cef581f71a3cfd36ed6125650"
@@ -403,28 +403,28 @@ hash = "sha1-748cbfd36f0b1ced8be10fe1783d8f2076edd5bc"
 other = "用户目录"
 
 [YumeUpdateAvailable]
-hash = "sha1-01e2890ed13f56603643c2889f85a6db04eb2738"
-other = "发现新版本: {{.New}} (当前 {{.Current}})"
+hash = "sha1-7388baf6af7645f61a75a37b7c97ad95990a32e5"
+other = "发现新版本: {{.New}}-{{.NewTimestamp}} (大小: {{.NewSize}}) (当前 {{.Current}}-{{.CurrentTimestamp}})"
 
 [YumeUpdateChecking]
 hash = "sha1-4e3cce70fa7a7c7f9cbe9660fe81e979dfd0fd45"
-other = "正在检查最新 yume 发行版..."
+other = "正在检查最新宇梦发行版..."
 
 [YumeUpdateCmdDesc]
 hash = "sha1-43e7c9427d64d622bd3fbe718349e20bea9e155a"
-other = "将 yume 引擎更新到最新发行版"
+other = "将宇梦输入系统更新到最新发行版"
 
 [YumeUpdateFlagCheck]
 hash = "sha1-0cff39af3515ec5a4262bd5e3044040c4025c481"
 other = "仅检查更新, 不执行安装"
 
 [YumeUpdateLatest]
-hash = "sha1-bb91c5d3f4658437c9f359ed47795bea93a227a0"
-other = "最新 yume 版本: {{.Version}}"
+hash = "sha1-e4d1ad05e6d7eee779ba19309f151cd9ce155acd"
+other = "最新宇梦版本: {{.Version}}-{{.Timestamp}}"
 
 [YumeUpdateUpToDate]
-hash = "sha1-53d3eb7063d3aff2f912811a528bec68813465d5"
-other = "yume 已是最新版本 ({{.Version}})"
+hash = "sha1-a2f13c50082347cd3278c040b78982815ec210fb"
+other = "宇梦已是最新版本 ({{.Version}}-{{.Timestamp}})"
 
 [YumeVersionCmdDesc]
 hash = "sha1-5bae585816ef202003637f4f4e2a08feedbbcb07"
