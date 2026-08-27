@@ -45,6 +45,7 @@ var (
 type releaseAsset struct {
 	Name               string `json:"name"`
 	BrowserDownloadURL string `json:"browser_download_url"`
+	Size               int64  `json:"size"`
 }
 
 // githubRelease is the subset of the GitHub releases/latest response we need.
@@ -59,6 +60,7 @@ type YumeRelease struct {
 	Arch      string
 	FileName  string
 	AssetURL  string
+	FileSize  int64
 }
 
 // LatestYumeRelease fetches the latest release from ReleaseRepo and selects
@@ -102,6 +104,7 @@ func LatestYumeRelease(ctx context.Context) (YumeRelease, error) {
 		Arch:      arch,
 		FileName:  asset.Name,
 		AssetURL:  asset.BrowserDownloadURL,
+		FileSize:  asset.Size,
 	}, nil
 }
 
@@ -208,6 +211,27 @@ func CompareReleases(installed YumeVersion, release YumeRelease) int {
 		return c
 	}
 	return strings.Compare(installed.Build, release.Timestamp)
+}
+
+// FormatSize returns the fileSize in the "1.23 MiB" format.
+func FormatSize(fileSize int64) string {
+	const unit = 1024
+	if fileSize <= 0 {
+		return "0 B"
+	}
+	units := []string{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
+	size := float64(fileSize)
+	exp := 0
+	for size >= unit && exp < len(units)-1 {
+		size /= unit
+		exp++
+	}
+	switch exp {
+	case 0:
+		return fmt.Sprintf("%.0f %s", size, units[exp])
+	default:
+		return fmt.Sprintf("%.2f %s", size, units[exp])
+	}
 }
 
 // leadingInt returns the leading run of ASCII digits in s as an integer.

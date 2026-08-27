@@ -29,34 +29,43 @@ var (
 			Other: "Checking for the latest yume release...",
 		},
 	}
-	MsgYumeUpdateAvailable = func(newVersion, currentVersion string) *i18n.LocalizeConfig {
+	MsgYumeUpdateAvailable = func(newVersion, newTimestamp, newSize, currentVersion, currentTimestamp string) *i18n.LocalizeConfig {
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "YumeUpdateAvailable",
-				Other: "Update available: {{.New}} (installed {{.Current}})",
+				Other: "Update available: {{.New}}-{{.NewTimestamp}} (size: {{.NewSize}}) (installed {{.Current}}-{{.CurrentTimestamp}})",
 			},
 			TemplateData: map[string]any{
-				"New":     newVersion,
-				"Current": currentVersion,
+				"New":              newVersion,
+				"NewTimestamp":     newTimestamp,
+				"NewSize":          newSize,
+				"Current":          currentVersion,
+				"CurrentTimestamp": currentTimestamp,
 			},
 		}
 	}
-	MsgYumeUpdateUpToDate = func(version string) *i18n.LocalizeConfig {
+	MsgYumeUpdateUpToDate = func(version, timestamp string) *i18n.LocalizeConfig {
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "YumeUpdateUpToDate",
-				Other: "yume is already up to date ({{.Version}})",
+				Other: "yume is already up to date ({{.Version}}-{{.Timestamp}})",
 			},
-			TemplateData: map[string]any{"Version": version},
+			TemplateData: map[string]any{
+				"Version":   version,
+				"Timestamp": timestamp,
+			},
 		}
 	}
-	MsgYumeUpdateLatest = func(version string) *i18n.LocalizeConfig {
+	MsgYumeUpdateLatest = func(version, timestamp string) *i18n.LocalizeConfig {
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "YumeUpdateLatest",
-				Other: "Latest yume version: {{.Version}}",
+				Other: "Latest yume version: {{.Version}}-{{.Timestamp}}",
 			},
-			TemplateData: map[string]any{"Version": version},
+			TemplateData: map[string]any{
+				"Version":   version,
+				"Timestamp": timestamp,
+			},
 		}
 	}
 )
@@ -93,10 +102,13 @@ func runYumeUpdate(cmd *cobra.Command, args []string) (err error) {
 
 	if installedFound {
 		if yume.CompareReleases(installed, release) >= 0 {
-			fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version)))
+			fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version, release.Timestamp)))
 			return nil
 		}
-		fmt.Println(tr.Localize(MsgYumeUpdateAvailable(release.Version, installed.Version)))
+		fmt.Println(tr.Localize(MsgYumeUpdateAvailable(
+			release.Version, release.Timestamp, yume.FormatSize(release.FileSize),
+			installed.Version, installed.Build,
+		)))
 	}
 
 	userDirs, err := resolveInstallTarget(cmd)
@@ -110,13 +122,16 @@ func runYumeUpdate(cmd *cobra.Command, args []string) (err error) {
 func reportUpdateCheck(installed yume.YumeVersion, installedFound bool, release yume.YumeRelease) error {
 	if !installedFound {
 		fmt.Println(tr.Localize(&MsgYumeNotInstalled))
-		fmt.Println(tr.Localize(MsgYumeUpdateLatest(release.Version)))
+		fmt.Println(tr.Localize(MsgYumeUpdateLatest(release.Version, release.Timestamp)))
 		return nil
 	}
 	if yume.CompareReleases(installed, release) < 0 {
-		fmt.Println(tr.Localize(MsgYumeUpdateAvailable(release.Version, installed.Version)))
+		fmt.Println(tr.Localize(MsgYumeUpdateAvailable(
+			release.Version, release.Timestamp, yume.FormatSize(release.FileSize),
+			installed.Version, installed.Build,
+		)))
 	} else {
-		fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version)))
+		fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version, release.Timestamp)))
 	}
 	return nil
 }
