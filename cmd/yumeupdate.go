@@ -92,7 +92,7 @@ func runYumeUpdate(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	if installedFound {
-		if yume.CompareVersions(installed.Version, release.Version) >= 0 {
+		if yume.CompareReleases(installed, release) >= 0 {
 			fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version)))
 			return nil
 		}
@@ -113,7 +113,7 @@ func reportUpdateCheck(installed yume.YumeVersion, installedFound bool, release 
 		fmt.Println(tr.Localize(MsgYumeUpdateLatest(release.Version)))
 		return nil
 	}
-	if yume.CompareVersions(installed.Version, release.Version) < 0 {
+	if yume.CompareReleases(installed, release) < 0 {
 		fmt.Println(tr.Localize(MsgYumeUpdateAvailable(release.Version, installed.Version)))
 	} else {
 		fmt.Println(tr.Localize(MsgYumeUpdateUpToDate(release.Version)))

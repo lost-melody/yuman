@@ -54,9 +54,11 @@ type githubRelease struct {
 
 // YumeRelease describes the latest yume release selected for this machine.
 type YumeRelease struct {
-	Version  string
-	FileName string
-	AssetURL string
+	Version   string
+	Timestamp string
+	Arch      string
+	FileName  string
+	AssetURL  string
 }
 
 // LatestYumeRelease fetches the latest release from ReleaseRepo and selects
@@ -93,11 +95,13 @@ func LatestYumeRelease(ctx context.Context) (YumeRelease, error) {
 	if err != nil {
 		return YumeRelease{}, err
 	}
-	version, _, _, _ := parseReleaseAssetName(asset.Name)
+	version, timestamp, arch, _ := parseReleaseAssetName(asset.Name)
 	return YumeRelease{
-		Version:  version,
-		FileName: asset.Name,
-		AssetURL: asset.BrowserDownloadURL,
+		Version:   version,
+		Timestamp: timestamp,
+		Arch:      arch,
+		FileName:  asset.Name,
+		AssetURL:  asset.BrowserDownloadURL,
 	}, nil
 }
 
@@ -194,6 +198,16 @@ func CompareVersions(a, b string) int {
 		}
 	}
 	return 0
+}
+
+// CompareReleases compares an installed yume against a release, returning -1,
+// 0 or 1. Version wins first; when versions are equal the timestamps decide,
+// with the installed build timestamp compared to the release timestamp.
+func CompareReleases(installed YumeVersion, release YumeRelease) int {
+	if c := CompareVersions(installed.Version, release.Version); c != 0 {
+		return c
+	}
+	return strings.Compare(installed.Build, release.Timestamp)
 }
 
 // leadingInt returns the leading run of ASCII digits in s as an integer.

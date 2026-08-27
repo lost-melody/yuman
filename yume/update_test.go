@@ -70,6 +70,53 @@ func TestSelectReleaseAsset(t *testing.T) {
 	}
 }
 
+func TestCompareReleases(t *testing.T) {
+	tests := []struct {
+		name      string
+		installed YumeVersion
+		release   YumeRelease
+		want      int
+	}{
+		{
+			name:      "newer version wins",
+			installed: YumeVersion{Version: "3.12.0", Build: "20260826000000"},
+			release:   YumeRelease{Version: "3.13.0", Timestamp: "20260826000000"},
+			want:      -1,
+		},
+		{
+			name:      "older version loses",
+			installed: YumeVersion{Version: "3.12.0", Build: "20260826000000"},
+			release:   YumeRelease{Version: "3.11.0", Timestamp: "20260826000000"},
+			want:      1,
+		},
+		{
+			name:      "equal version equal timestamp",
+			installed: YumeVersion{Version: "3.12.0", Build: "20260826230615"},
+			release:   YumeRelease{Version: "3.12.0", Timestamp: "20260826230615"},
+			want:      0,
+		},
+		{
+			name:      "equal version older timestamp",
+			installed: YumeVersion{Version: "3.12.0", Build: "20260826130405"},
+			release:   YumeRelease{Version: "3.12.0", Timestamp: "20260826230615"},
+			want:      -1,
+		},
+		{
+			name:      "equal version newer timestamp",
+			installed: YumeVersion{Version: "3.12.0", Build: "20260827000000"},
+			release:   YumeRelease{Version: "3.12.0", Timestamp: "20260826230615"},
+			want:      1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CompareReleases(tt.installed, tt.release); got != tt.want {
+				t.Errorf("CompareReleases(%+v, %+v) = %d, want %d", tt.installed, tt.release, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestCompareVersions(t *testing.T) {
 	tests := []struct {
 		a, b string
