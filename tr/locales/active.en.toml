@@ -1,3 +1,4 @@
+CmdShorthandFor = " (shorthand for '{{.Command}}')"
 DownloadingPackage = "Downloading package '{{.URL}}'..."
 ErrArchMismatch = "package architecture '{{.PackageArch}}' does not match this machine ({{.HostArch}})"
 ErrArchiveAbsolutePath = "archive entry has absolute path: '{{.Name}}'"

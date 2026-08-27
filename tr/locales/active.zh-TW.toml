@@ -1,3 +1,7 @@
+[CmdShorthandFor]
+hash = "sha1-b039b4105a8f775696f3aaf435a173a7fab548cd"
+other = " (同 '{{.Command}}')"
+
 [DownloadingPackage]
 hash = "sha1-7e9552f75697a004646701690c3d7f32e395776f"
 other = "正在下載安裝包 '{{.URL}}'..."
