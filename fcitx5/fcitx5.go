@@ -132,6 +132,21 @@ func (controller *ControllerImpl) GetAddonConfig(ctx context.Context, addon stri
 	return
 }
 
+func (controller *ControllerImpl) SetConfig(ctx context.Context, uri string, options map[string]any) (err error) {
+	err = controller.Call(ctx, "SetConfig", dbusproxy.Args{uri, dbus.MakeVariant(options)})
+	return
+}
+
+func (controller *ControllerImpl) SetGlobalConfig(ctx context.Context, options map[string]any) (err error) {
+	err = controller.SetConfig(ctx, "fcitx://config/global", options)
+	return
+}
+
+func (controller *ControllerImpl) SetAddonConfig(ctx context.Context, addon string, options map[string]any) (err error) {
+	err = controller.SetConfig(ctx, fmt.Sprintf("fcitx://config/addon/%s", addon), options)
+	return
+}
+
 func (controller *ControllerImpl) ReloadConfig(ctx context.Context) (err error) {
 	err = controller.Call(ctx, "ReloadConfig", nil)
 	return
