@@ -238,14 +238,14 @@ func (h *CommentModes) AvailableModeOptions() []huh.Option[CommentMode] {
 
 // ShortHelp implements [help.KeyMap].
 func (k *CommentModesKeys) ShortHelp() []key.Binding {
-	return []key.Binding{k.Toggle, k.Edit, k.Prev, k.Next}
+	return []key.Binding{k.Toggle, k.Edit, k.Prev, k.Next, k.Insert, k.Delete}
 }
 
 // FullHelp implements [help.KeyMap].
 func (k *CommentModesKeys) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Toggle, k.Edit, k.Prev, k.Next},
-		{k.Prev, k.Next, k.SwapPrev, k.SwapNext},
+		{k.Insert, k.Delete, k.SwapPrev, k.SwapNext},
 	}
 }
 
