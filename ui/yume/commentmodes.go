@@ -175,9 +175,9 @@ func (h *CommentModes) Update(message tea.Msg) (model tea.Model, cmd tea.Cmd) {
 			value.Insert(h.options, h.option)
 		case key.Matches(msg, h.Keys.Delete):
 			if value.Index < len(h.Table) {
-				h.Table = slices.Delete(h.Table, value.Index, 1)
+				h.Table = slices.Delete(h.Table, value.Index, value.Index+1)
+				value.Delete(h.options, h.option)
 			}
-			value.Delete(h.options, h.option)
 		case key.Matches(msg, h.Keys.SwapPrev):
 			idx := value.Index
 			h.Table[idx], h.Table[idx-1] = h.Table[idx-1], h.Table[idx]
