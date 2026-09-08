@@ -180,12 +180,16 @@ func (h *CommentModes) Update(message tea.Msg) (model tea.Model, cmd tea.Cmd) {
 			}
 		case key.Matches(msg, h.Keys.SwapPrev):
 			idx := value.Index
-			h.Table[idx], h.Table[idx-1] = h.Table[idx-1], h.Table[idx]
-			value.SwapPrev(h.options, h.option)
+			if idx > 0 {
+				h.Table[idx], h.Table[idx-1] = h.Table[idx-1], h.Table[idx]
+				value.SwapPrev(h.options, h.option)
+			}
 		case key.Matches(msg, h.Keys.SwapNext):
 			idx := value.Index
-			h.Table[idx], h.Table[idx+1] = h.Table[idx+1], h.Table[idx]
-			value.SwapNext(h.options, h.option)
+			if idx < len(h.Table)-1 {
+				h.Table[idx], h.Table[idx+1] = h.Table[idx+1], h.Table[idx]
+				value.SwapNext(h.options, h.option)
+			}
 
 		default:
 		}
