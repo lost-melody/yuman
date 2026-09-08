@@ -224,6 +224,8 @@ func (h *CommentModes) View() tea.View {
 				selected := idx == value.Index
 				if h.Table[idx].Enabled {
 					style = style.Foreground(lg.Green)
+				} else {
+					style = style.Faint(true)
 				}
 				if selected {
 					style = style.Foreground(lg.Magenta)
@@ -293,9 +295,12 @@ func (c *CommentModeSet) String() string {
 	if c.Enabled {
 		indicator = "+"
 	}
-	desc := strings.Join(lo.Map(c.Modes, func(mode CommentMode, _ int) string {
-		return mode.String()
-	}), ", ")
+	desc := "無註解"
+	if len(c.Modes) != 0 {
+		desc = strings.Join(lo.Map(c.Modes, func(mode CommentMode, _ int) string {
+			return mode.String()
+		}), ", ")
+	}
 	return fmt.Sprintf("[%1s] %s: %s", indicator, c.Name, desc)
 }
 
