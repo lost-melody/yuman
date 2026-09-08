@@ -6,7 +6,7 @@ vars:
   GREETING: Hello, world!
   CGO_ENABLED: 1
   GO_PKG: github.com/lost-melody/yuman
-  VERSION: 0.1.0
+  VERSION: 0.2.0
   GIT_COMMIT:
     sh: git rev-parse --short HEAD || echo unknown
   LOCALES_DIR: tr/locales
