@@ -29,3 +29,17 @@ _Yuman_ 是一個爲 _[Yume][yume-release]_ (宇夢輸入系統) 構建的 _CLI_
 [bubbletea]: https://github.com/charmbracelet/bubbletea
 [godbus]: https://github.com/godbus/dbus
 [go-i18n]: https://github.com/nicksnyder/go-i18n
+
+安裝與發佈:
+
+- 直接安裝: `go install github.com/lost-melody/yuman@latest`.
+- 手動編譯: 克隆並 `cd` 到倉庫目錄, 執行 `task build`.
+- 打包 (含 `yuman` 文件和 `LICENSE`, `README.md`): 執行 `task pack`.
+
+添加語言翻譯:
+
+- 如須修訂已有翻譯文本, 可直接編輯相應文件: `nvim tr/locales/active.zh-CN.toml`.
+- 若代碼中有新增的待翻譯字符串, 則先提取: `task i18n_extract`.
+- 創建待翻譯稿件 (以 `zh-CN` 爲例): `task i18n_translate LANG=zh-CN`.
+- 使用編輯器打開翻譯稿件 (以 `nvim` 和 `zh-CN` 爲例): `nvim tr/locales/translate.zh-CN.toml`.
+- 翻譯完成後, 執行 `task i18n_apply LANG=zh-CN` 將新翻譯文本合併到已有翻譯文件.
