@@ -90,7 +90,11 @@ func (v *ValueBool) Parse(option *fcitx5.ConfigOption, value any) {
 
 func (v *ValueBool) Toggle(options map[string]any, option *fcitx5.ConfigOption) {
 	v.Value = !v.Value
-	options[option.Name] = strconv.FormatBool(v.Value)
+	value := "False"
+	if v.Value {
+		value = "True"
+	}
+	options[option.Name] = value
 }
 
 func (v *ValueInt) Parse(option *fcitx5.ConfigOption, value any) {
