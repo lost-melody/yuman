@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
@@ -17,7 +18,7 @@ func runShellScript(ctx context.Context, script string, usePkexec bool, pkexecEr
 	if usePkexec {
 		pkexec, err := exec.LookPath("pkexec")
 		if err != nil {
-			return wrapError(pkexecErr, err)
+			return tr.WrapError(pkexecErr, err)
 		}
 		argv = append([]string{pkexec, "--keep-cwd"}, argv...)
 	}
@@ -27,7 +28,7 @@ func runShellScript(ctx context.Context, script string, usePkexec bool, pkexecEr
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return wrapError(runErr, err)
+		return tr.WrapError(runErr, err)
 	}
 	return nil
 }

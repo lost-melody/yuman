@@ -2,12 +2,11 @@ package yume
 
 import (
 	"context"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
+
+	"github.com/lost-melody/yuman/release"
 )
 
 func TestUserDataHome(t *testing.T) {
@@ -164,54 +163,10 @@ func TestIsURL(t *testing.T) {
 	}
 }
 
-func TestDownloadPackage(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte("faketarball"))
-	}))
-	defer server.Close()
-
-	path, err := downloadPackage(context.Background(), server.URL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		_ = os.Remove(path)
-	}()
-
-	if !strings.HasSuffix(path, ".tar.gz") {
-		t.Errorf("downloadPackage() path = %q, want .tar.gz suffix", path)
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(data) != "faketarball" {
-		t.Errorf("downloadPackage() content = %q, want %q", data, "faketarball")
-	}
-}
-
-func TestMachineArch(t *testing.T) {
-	tests := []struct {
-		goarch string
-		want   string
-	}{
-		{"amd64", "x86_64"},
-		{"arm64", "aarch64"},
-		{"386", "i686"},
-		{"loong64", "loongarch64"},
-		{"riscv64", "riscv64"},
-	}
-	for _, tt := range tests {
-		if got := machineArch(tt.goarch); got != tt.want {
-			t.Errorf("machineArch(%q) = %q, want %q", tt.goarch, got, tt.want)
-		}
-	}
-}
-
 func TestCheckArch(t *testing.T) {
-	old := hostArch
-	hostArch = "amd64" // machineArch -> x86_64
-	t.Cleanup(func() { hostArch = old })
+	old := release.HostArch
+	release.HostArch = "amd64" // release.MachineArch -> x86_64
+	t.Cleanup(func() { release.HostArch = old })
 
 	writeVersion := func(t *testing.T, content string) string {
 		t.Helper()
@@ -249,9 +204,9 @@ func TestCheckArch(t *testing.T) {
 }
 
 func TestInstallYumeRejectsArchMismatch(t *testing.T) {
-	old := hostArch
-	hostArch = "amd64" // machineArch -> x86_64
-	t.Cleanup(func() { hostArch = old })
+	old := release.HostArch
+	release.HostArch = "amd64" // release.MachineArch -> x86_64
+	t.Cleanup(func() { release.HostArch = old })
 
 	home := t.TempDir()
 	t.Setenv("HOME", home)

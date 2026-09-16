@@ -2,11 +2,10 @@ package yume
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"net/http"
+	"errors"
 	"strings"
 
+	"github.com/lost-melody/yuman/release"
 	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -41,18 +40,6 @@ var (
 	}
 )
 
-// releaseAsset is the subset of a GitHub release asset we need.
-type releaseAsset struct {
-	Name               string `json:"name"`
-	BrowserDownloadURL string `json:"browser_download_url"`
-	Size               int64  `json:"size"`
-}
-
-// githubRelease is the subset of the GitHub releases/latest response we need.
-type githubRelease struct {
-	Assets []releaseAsset `json:"assets"`
-}
-
 // YumeRelease describes the latest yume release selected for this machine.
 type YumeRelease struct {
 	Version   string
@@ -66,34 +53,15 @@ type YumeRelease struct {
 // LatestYumeRelease fetches the latest release from ReleaseRepo and selects
 // the newest linux package that matches this machine's architecture.
 func LatestYumeRelease(ctx context.Context) (YumeRelease, error) {
-	url := releaseAPIURL()
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	fetched, err := release.Fetch(ctx, ReleaseRepo)
 	if err != nil {
-		return YumeRelease{}, wrapError(MsgErrFetchRelease(url), err)
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return YumeRelease{}, wrapError(MsgErrFetchRelease(url), err)
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	if resp.StatusCode == http.StatusNotFound {
-		return YumeRelease{}, tr.LocalizeError(&MsgErrNoRelease)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return YumeRelease{}, wrapError(MsgErrFetchRelease(url), fmt.Errorf("unexpected status %s", resp.Status))
+		if errors.Is(err, release.ErrNoRelease) {
+			return YumeRelease{}, tr.LocalizeError(&MsgErrNoRelease)
+		}
+		return YumeRelease{}, tr.WrapError(MsgErrFetchRelease(release.APIURL(ReleaseRepo)), err)
 	}
 
-	var release githubRelease
-	if err = json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return YumeRelease{}, wrapError(MsgErrFetchRelease(url), err)
-	}
-
-	asset, err := selectReleaseAsset(release.Assets, machineArch(hostArch))
+	asset, err := selectReleaseAsset(fetched.Assets, release.MachineArch(release.HostArch))
 	if err != nil {
 		return YumeRelease{}, err
 	}
@@ -108,16 +76,11 @@ func LatestYumeRelease(ctx context.Context) (YumeRelease, error) {
 	}, nil
 }
 
-// releaseAPIURL returns the GitHub API endpoint for the latest release.
-func releaseAPIURL() string {
-	return "https://api.github.com/repos/" + ReleaseRepo + "/releases/latest"
-}
-
 // selectReleaseAsset picks the newest linux asset for arch. Every asset in a
 // release shares the same version, so only arch and timestamp are compared;
 // the greatest timestamp wins. It returns an error when no asset matches.
-func selectReleaseAsset(assets []releaseAsset, arch string) (releaseAsset, error) {
-	var best releaseAsset
+func selectReleaseAsset(assets []release.Asset, arch string) (release.Asset, error) {
+	var best release.Asset
 	var bestTimestamp string
 	for _, asset := range assets {
 		_, timestamp, a, ok := parseReleaseAssetName(asset.Name)
@@ -130,7 +93,7 @@ func selectReleaseAsset(assets []releaseAsset, arch string) (releaseAsset, error
 		}
 	}
 	if bestTimestamp == "" {
-		return releaseAsset{}, tr.LocalizeError(MsgErrNoMatchingAsset(arch))
+		return release.Asset{}, tr.LocalizeError(MsgErrNoMatchingAsset(arch))
 	}
 	return best, nil
 }
@@ -178,70 +141,12 @@ func isDigits(s string) bool {
 	return true
 }
 
-// CompareVersions compares two version strings, ignoring an optional leading
-// "v" and comparing dot-separated numeric segments. It returns -1, 0 or 1.
-func CompareVersions(a, b string) int {
-	a = strings.TrimPrefix(strings.TrimPrefix(a, "v"), "V")
-	b = strings.TrimPrefix(strings.TrimPrefix(b, "v"), "V")
-	as := strings.Split(a, ".")
-	bs := strings.Split(b, ".")
-	for i := 0; i < len(as) || i < len(bs); i++ {
-		var an, bn int
-		if i < len(as) {
-			an = leadingInt(as[i])
-		}
-		if i < len(bs) {
-			bn = leadingInt(bs[i])
-		}
-		switch {
-		case an < bn:
-			return -1
-		case an > bn:
-			return 1
-		}
-	}
-	return 0
-}
-
 // CompareReleases compares an installed yume against a release, returning -1,
 // 0 or 1. Version wins first; when versions are equal the timestamps decide,
 // with the installed build timestamp compared to the release timestamp.
-func CompareReleases(installed YumeVersion, release YumeRelease) int {
-	if c := CompareVersions(installed.Version, release.Version); c != 0 {
+func CompareReleases(installed YumeVersion, rel YumeRelease) int {
+	if c := release.CompareVersions(installed.Version, rel.Version); c != 0 {
 		return c
 	}
-	return strings.Compare(installed.Build, release.Timestamp)
-}
-
-// FormatSize returns the fileSize in the "1.23 MiB" format.
-func FormatSize(fileSize int64) string {
-	const unit = 1024
-	if fileSize <= 0 {
-		return "0 B"
-	}
-	units := []string{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"}
-	size := float64(fileSize)
-	exp := 0
-	for size >= unit && exp < len(units)-1 {
-		size /= unit
-		exp++
-	}
-	switch exp {
-	case 0:
-		return fmt.Sprintf("%.0f %s", size, units[exp])
-	default:
-		return fmt.Sprintf("%.2f %s", size, units[exp])
-	}
-}
-
-// leadingInt returns the leading run of ASCII digits in s as an integer.
-func leadingInt(s string) int {
-	n := 0
-	for i := 0; i < len(s); i++ {
-		if s[i] < '0' || s[i] > '9' {
-			break
-		}
-		n = n*10 + int(s[i]-'0')
-	}
-	return n
+	return strings.Compare(installed.Build, rel.Timestamp)
 }

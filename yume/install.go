@@ -1,18 +1,14 @@
 package yume
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"context"
 	"fmt"
-	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
+	"github.com/lost-melody/yuman/release"
 	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -102,28 +98,6 @@ var (
 			},
 		}
 	}
-	MsgDownloadingPackage = func(url string) *i18n.LocalizeConfig {
-		return &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "DownloadingPackage",
-				Other: "Downloading package '{{.URL}}'...",
-			},
-			TemplateData: map[string]any{
-				"URL": url,
-			},
-		}
-	}
-	MsgErrDownloadPackage = func(url string) *i18n.LocalizeConfig {
-		return &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "ErrDownloadPackage",
-				Other: "download package '{{.URL}}'",
-			},
-			TemplateData: map[string]any{
-				"URL": url,
-			},
-		}
-	}
 	MsgErrArchMismatch = func(pkgArch, hostArch string) *i18n.LocalizeConfig {
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -166,33 +140,6 @@ var (
 			TemplateData: map[string]any{"Package": pkg},
 		}
 	}
-	MsgErrOpenGzip = func(pkg string) *i18n.LocalizeConfig {
-		return &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "ErrOpenGzip",
-				Other: "open gzip stream from '{{.Package}}'",
-			},
-			TemplateData: map[string]any{"Package": pkg},
-		}
-	}
-	MsgErrArchiveAbsolutePath = func(name string) *i18n.LocalizeConfig {
-		return &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "ErrArchiveAbsolutePath",
-				Other: "archive entry has absolute path: '{{.Name}}'",
-			},
-			TemplateData: map[string]any{"Name": name},
-		}
-	}
-	MsgErrArchiveEscape = func(name string) *i18n.LocalizeConfig {
-		return &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "ErrArchiveEscape",
-				Other: "archive entry escapes destination: '{{.Name}}'",
-			},
-			TemplateData: map[string]any{"Name": name},
-		}
-	}
 	MsgErrNoInstallableFiles = func(dir string) *i18n.LocalizeConfig {
 		return &i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -212,11 +159,6 @@ var (
 		}
 	}
 )
-
-// wrapError localizes cfg and wraps cause, preserving the error chain.
-func wrapError(cfg *i18n.LocalizeConfig, cause error) error {
-	return fmt.Errorf("%s: %w", tr.Localize(cfg), cause)
-}
 
 // InstallYume installs yume into user directories or system directories.
 //
@@ -246,11 +188,10 @@ func wrapError(cfg *i18n.LocalizeConfig, cause error) error {
 func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose bool) (err error) {
 	displayPath := pkgPath
 	if isURL(pkgPath) {
-		fmt.Println(tr.Localize(MsgDownloadingPackage(pkgPath)))
 		var downloaded string
-		downloaded, err = downloadPackage(ctx, pkgPath)
+		downloaded, err = release.Download(ctx, pkgPath)
 		if err != nil {
-			return wrapError(MsgErrDownloadPackage(pkgPath), err)
+			return err
 		}
 		defer func() {
 			_ = os.Remove(downloaded)
@@ -266,12 +207,12 @@ func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose boo
 
 	layout, err := resolveLayout(userDirs)
 	if err != nil {
-		return wrapError(&MsgErrResolveLayout, err)
+		return tr.WrapError(&MsgErrResolveLayout, err)
 	}
 
 	info, err := os.Stat(pkgPath)
 	if err != nil {
-		return wrapError(MsgErrStatPackage(pkgPath), err)
+		return tr.WrapError(MsgErrStatPackage(pkgPath), err)
 	}
 	if !info.IsDir() && !isTarGz(pkgPath) {
 		return tr.LocalizeError(MsgErrUnsupportedPackage(pkgPath))
@@ -282,12 +223,12 @@ func InstallYume(ctx context.Context, pkgPath string, userDirs bool, verbose boo
 		var tmpDir string
 		tmpDir, err = os.MkdirTemp("", "yume-install-*")
 		if err != nil {
-			return wrapError(&MsgErrCreateTempDir, err)
+			return tr.WrapError(&MsgErrCreateTempDir, err)
 		}
 		defer func() {
 			_ = os.RemoveAll(tmpDir)
 		}()
-		if err = extractTarGz(ctx, pkgPath, tmpDir); err != nil {
+		if err = release.ExtractTarGz(ctx, pkgPath, tmpDir); err != nil {
 			return err
 		}
 		srcDir = tmpDir
@@ -424,10 +365,10 @@ func writeFcitx5Environment() error {
 	content := "FCITX_ADDON_DIRS=" + strings.Join(fcitx5AddonDirs(), ":") + "\n"
 
 	if err = os.MkdirAll(configDir, 0o755); err != nil {
-		return wrapError(&MsgErrCreateEnvironmentDir, err)
+		return tr.WrapError(&MsgErrCreateEnvironmentDir, err)
 	}
 	if err = os.WriteFile(path, []byte(content), 0o644); err != nil {
-		return wrapError(MsgErrWriteEnvironmentFile(path), err)
+		return tr.WrapError(MsgErrWriteEnvironmentFile(path), err)
 	}
 	return nil
 }
@@ -480,35 +421,6 @@ func isURL(pkgPath string) bool {
 
 // downloadPackage downloads the package at url into a temporary .tar.gz file
 // and returns its path. The caller is responsible for removing the file.
-func downloadPackage(ctx context.Context, url string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return "", err
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unexpected status %s", resp.Status)
-	}
-
-	f, err := os.CreateTemp("", "yume-download-*.tar.gz")
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-	if _, err := io.Copy(f, resp.Body); err != nil {
-		_ = os.Remove(f.Name())
-		return "", err
-	}
-	return f.Name(), nil
-}
 
 // printVersionInfo prints the version, build and arch fields from the package's
 // share/yume/VERSION file, ignoring everything else.
@@ -520,27 +432,6 @@ func printVersionInfo(srcDir string) {
 	fmt.Printf("%+v\n", v)
 }
 
-// hostArch is the local machine architecture, expressed as a runtime.GOARCH
-// value. It is a variable so tests can override it.
-var hostArch = runtime.GOARCH
-
-// machineArch maps a Go architecture name (runtime.GOARCH) to the uname -m
-// style used by share/yume/VERSION.
-func machineArch(goarch string) string {
-	switch goarch {
-	case "amd64":
-		return "x86_64"
-	case "arm64":
-		return "aarch64"
-	case "386":
-		return "i686"
-	case "loong64":
-		return "loongarch64"
-	default:
-		return goarch
-	}
-}
-
 // checkArch verifies that the arch field in the package's share/yume/VERSION
 // matches the local machine. A missing or unreadable VERSION (or arch field) is
 // tolerated; only an explicit mismatch is an error.
@@ -549,7 +440,7 @@ func checkArch(srcDir string) error {
 	if err != nil || v.Arch == "" {
 		return nil
 	}
-	local := machineArch(hostArch)
+	local := release.MachineArch(release.HostArch)
 	if v.Arch != local {
 		return tr.LocalizeError(MsgErrArchMismatch(v.Arch, local))
 	}
@@ -558,78 +449,8 @@ func checkArch(srcDir string) error {
 
 // extractTarGz unpacks a gzipped tarball into destDir, preserving file modes
 // and rejecting entries that escape destDir.
-func extractTarGz(ctx context.Context, pkgPath, destDir string) error {
-	f, err := os.Open(pkgPath)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	gz, err := gzip.NewReader(f)
-	if err != nil {
-		return wrapError(MsgErrOpenGzip(pkgPath), err)
-	}
-	defer func() {
-		_ = gz.Close()
-	}()
-
-	tarReader := tar.NewReader(gz)
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		hdr, err := tarReader.Next()
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-
-		clean := filepath.Clean(hdr.Name)
-		if filepath.IsAbs(clean) {
-			return tr.LocalizeError(MsgErrArchiveAbsolutePath(hdr.Name))
-		}
-		target := filepath.Join(destDir, clean)
-		if !withinDir(destDir, target) {
-			return tr.LocalizeError(MsgErrArchiveEscape(hdr.Name))
-		}
-
-		switch hdr.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(target, os.FileMode(hdr.Mode).Perm()); err != nil {
-				return err
-			}
-		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-				return err
-			}
-			out, err := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.FileMode(hdr.Mode).Perm())
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(out, tarReader); err != nil {
-				_ = out.Close()
-				return err
-			}
-			if err := out.Close(); err != nil {
-				return err
-			}
-		}
-	}
-}
 
 // withinDir reports whether target is destDir or a path underneath it.
-func withinDir(destDir, target string) bool {
-	rel, err := filepath.Rel(destDir, target)
-	if err != nil {
-		return false
-	}
-	return rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator))
-}
 
 // installFromDir walks an unpacked package directory and installs every
 // recognized file. All copies are assembled into a single shell command that is

@@ -106,7 +106,7 @@ func UninstallYume(ctx context.Context, userDirs, purge bool, verbose bool) (err
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return wrapError(&MsgErrResolveUninstallLayout, err)
+		return tr.WrapError(&MsgErrResolveUninstallLayout, err)
 	}
 	if userDirs {
 		return uninstallUserDirs(ctx, home, purge, verbose)

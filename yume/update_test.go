@@ -1,6 +1,10 @@
 package yume
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/lost-melody/yuman/release"
+)
 
 func TestParseReleaseAssetName(t *testing.T) {
 	tests := []struct {
@@ -50,7 +54,7 @@ func TestParseReleaseAssetName(t *testing.T) {
 }
 
 func TestSelectReleaseAsset(t *testing.T) {
-	assets := []releaseAsset{
+	assets := []release.Asset{
 		{Name: "Yume-v3.12.0-20260826130405-linux-x86_64.tar.gz", BrowserDownloadURL: "https://example.com/old"},
 		{Name: "Yume-v3.12.0-20260826150000-linux-x86_64.tar.gz", BrowserDownloadURL: "https://example.com/new"},
 		{Name: "Yume-v3.12.0-20260826150000-linux-aarch64.tar.gz", BrowserDownloadURL: "https://example.com/arm"},
@@ -129,7 +133,7 @@ func TestCompareVersions(t *testing.T) {
 		{"4.0.0", "v3.12.0", 1},
 	}
 	for _, tt := range tests {
-		if got := CompareVersions(tt.a, tt.b); got != tt.want {
+		if got := release.CompareVersions(tt.a, tt.b); got != tt.want {
 			t.Errorf("CompareVersions(%q, %q) = %d, want %d", tt.a, tt.b, got, tt.want)
 		}
 	}

@@ -142,45 +142,45 @@ func ImportYume(ctx context.Context, name, tablePath, divPath string, verbose bo
 
 	compile, err := resolveCompileBinary()
 	if err != nil {
-		return wrapError(&MsgErrResolveCompile, err)
+		return tr.WrapError(&MsgErrResolveCompile, err)
 	}
 	root, err := resolveCustomRoot()
 	if err != nil {
-		return wrapError(&MsgErrResolveCustomRoot, err)
+		return tr.WrapError(&MsgErrResolveCustomRoot, err)
 	}
 
 	divIn, divOut, cleanup, err := divisionPaths(divPath)
 	if err != nil {
-		return wrapError(&MsgErrCreateTempDir, err)
+		return tr.WrapError(&MsgErrCreateTempDir, err)
 	}
 	defer cleanup()
 
 	if _, err = runCompile(ctx, compile, verbose, "--division", divIn, divOut); err != nil {
-		return wrapError(&MsgErrCompileDivision, err)
+		return tr.WrapError(&MsgErrCompileDivision, err)
 	}
 
 	id, found, err := findSlotID(ctx, compile, root, name, verbose)
 	if err != nil {
-		return wrapError(&MsgErrCompileSlotList, err)
+		return tr.WrapError(&MsgErrCompileSlotList, err)
 	}
 	if !found {
 		var idOut string
 		idOut, err = runCompile(ctx, compile, verbose, "--slot-create", root)
 		if err != nil {
-			return wrapError(&MsgErrCompileSlotCreate, err)
+			return tr.WrapError(&MsgErrCompileSlotCreate, err)
 		}
 		id = strings.TrimSpace(idOut)
 	}
 
 	slotOut, err := runCompile(ctx, compile, verbose, "--slot-dir", root, id)
 	if err != nil {
-		return wrapError(&MsgErrCompileSlotDir, err)
+		return tr.WrapError(&MsgErrCompileSlotDir, err)
 	}
 	slot := strings.TrimSpace(slotOut)
 
 	customOut, err := runCompile(ctx, compile, verbose, "--custom", name, tablePath, divOut, slot)
 	if err != nil {
-		return wrapError(&MsgErrCompileCustom, err)
+		return tr.WrapError(&MsgErrCompileCustom, err)
 	}
 
 	// yume-compile --custom may ask follow-up questions on stdout. Prompt for
@@ -193,12 +193,12 @@ func ImportYume(ctx context.Context, name, tablePath, divPath string, verbose bo
 		customArgs := []string{"--custom", name, tablePath, divOut, slot}
 		customArgs = append(customArgs, compileAnswerArgs(questions, answers)...)
 		if _, err = runCompile(ctx, compile, verbose, customArgs...); err != nil {
-			return wrapError(&MsgErrCompileCustom, err)
+			return tr.WrapError(&MsgErrCompileCustom, err)
 		}
 	}
 
 	if _, err = runCompile(ctx, compile, verbose, "--slot-source", slot, name, tablePath); err != nil {
-		return wrapError(&MsgErrCompileSlotSource, err)
+		return tr.WrapError(&MsgErrCompileSlotSource, err)
 	}
 
 	fmt.Println(tr.Localize(MsgImportedSchema(id)))
@@ -277,15 +277,15 @@ type CustomSchema struct {
 func ListCustomSchemas(ctx context.Context, verbose bool) ([]CustomSchema, error) {
 	compile, err := resolveCompileBinary()
 	if err != nil {
-		return nil, wrapError(&MsgErrResolveCompile, err)
+		return nil, tr.WrapError(&MsgErrResolveCompile, err)
 	}
 	root, err := resolveCustomRoot()
 	if err != nil {
-		return nil, wrapError(&MsgErrResolveCustomRoot, err)
+		return nil, tr.WrapError(&MsgErrResolveCustomRoot, err)
 	}
 	out, err := runCompile(ctx, compile, verbose, "--slot-list", root)
 	if err != nil {
-		return nil, wrapError(&MsgErrCompileSlotList, err)
+		return nil, tr.WrapError(&MsgErrCompileSlotList, err)
 	}
 	return parseSlotList(out), nil
 }
@@ -309,14 +309,14 @@ func FindCustomSchema(ctx context.Context, ref string, verbose bool) (*CustomSch
 func RemoveCustomSchema(ctx context.Context, id string, verbose bool) error {
 	compile, err := resolveCompileBinary()
 	if err != nil {
-		return wrapError(&MsgErrResolveCompile, err)
+		return tr.WrapError(&MsgErrResolveCompile, err)
 	}
 	root, err := resolveCustomRoot()
 	if err != nil {
-		return wrapError(&MsgErrResolveCustomRoot, err)
+		return tr.WrapError(&MsgErrResolveCustomRoot, err)
 	}
 	if _, err = runCompile(ctx, compile, verbose, "--slot-remove", root, id); err != nil {
-		return wrapError(&MsgErrCompileSlotRemove, err)
+		return tr.WrapError(&MsgErrCompileSlotRemove, err)
 	}
 	fmt.Println(tr.Localize(MsgRemovedSchema(id)))
 	return nil
