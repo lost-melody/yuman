@@ -22,6 +22,10 @@ other = "壓縮檔條目超出目標目錄: '{{.Name}}'"
 hash = "sha1-4954dee091430237d887c57f3e16ec5dcad0a48e"
 other = "調用 {{.BusType}} 總線方法 '{{.Method}}' 時: %w"
 
+[ErrChmodYumeteBinary]
+hash = "sha1-7addaf49fdc69c2f62cb5437f7cb7294c0c32cf7"
+other = "將 '{{.Path}}' 設為可執行"
+
 [ErrCompileCustom]
 hash = "sha1-793bd6f46b5e7a5c07ff3b0e4d3b8985fa274a52"
 other = "編譯自訂方案"
@@ -62,6 +66,22 @@ other = "建立 environment.d 目錄"
 hash = "sha1-5fb7fc1643579c6442294a57505076327513acca"
 other = "建立暫存目錄"
 
+[ErrCreateYumeteBinDir]
+hash = "sha1-15af77a605aadd6961e80079cc4ed76838e014cc"
+other = "建立 yumete 可執行目錄 '{{.Directory}}'"
+
+[ErrCreateYumeteLibDir]
+hash = "sha1-faf9b1726e49b1264f5589334faceac51a6e4909"
+other = "建立 yumete 程式庫目錄 '{{.Directory}}'"
+
+[ErrCreateYumeteLink]
+hash = "sha1-ba77eb65a36afd1ba96125357dfdb2377f4db253"
+other = "建立 yumete 符號連結 '{{.Link}}'"
+
+[ErrCreateYumeteTempDir]
+hash = "sha1-d108251f434bac1cbfb3eebcb7290affa6f08e25"
+other = "建立 yumete 暫存目錄"
+
 [ErrDownloadPackage]
 hash = "sha1-955c2d1604e55645bb34f44205f0c0a43cba8a06"
 other = "下載安裝包 '{{.URL}}'"
@@ -74,6 +94,10 @@ other = "無法重啟 fcitx5 服務"
 hash = "sha1-3d26a49a0b891e2e5476d10cff9ff4b8ff3f779f"
 other = "從 '{{.URL}}' 取得最新宇夢發行版失敗"
 
+[ErrFetchYumeteRelease]
+hash = "sha1-50fb9ff9a3893ca03fb94d5b55c792fadbc4b342"
+other = "從 '{{.URL}}' 取得最新 yumete 發行版"
+
 [ErrFlagsConflict]
 hash = "sha1-0534b83f6f730f9ab90e54c0cd153224ab014187"
 other = "參數 '{{.FlagA}}' 與 '{{.FlagB}}' 相互衝突"
@@ -81,6 +105,14 @@ other = "參數 '{{.FlagA}}' 與 '{{.FlagB}}' 相互衝突"
 [ErrInstallFailed]
 hash = "sha1-88a65ee4b343a2e1ba1e34f84fffd103406fe201"
 other = "安裝失敗"
+
+[ErrInstallYumetePackage]
+hash = "sha1-0c59eba596296344c6e448ad377a18292287c2f9"
+other = "將 yumete 安裝包安裝到 '{{.Directory}}'"
+
+[ErrListYumetePackages]
+hash = "sha1-023e41b6683169afd6cf076dfe8f6670b6dc0067"
+other = "列出 '{{.Directory}}' 中的 yumete 安裝包"
 
 [ErrMissingParameter]
 hash = "sha1-3fbb2d9f347949479539bb7267b44e11d89c6d6c"
@@ -98,6 +130,10 @@ other = "找不到符合 {{.Arch}} 的 linux 安裝套件"
 hash = "sha1-e77a0b063f063c6244f316df26f7ecf2f2a690df"
 other = "找不到宇夢發行版"
 
+[ErrNoYumeteRelease]
+hash = "sha1-ea3921c76b9cbc23048e371b8e968b573b255a8d"
+other = "找不到 yumete 發行版"
+
 [ErrNothingSelected]
 hash = "sha1-3a441f633310e72cef581f71a3cfd36ed6125650"
 other = "未選擇任何項"
@@ -105,6 +141,10 @@ other = "未選擇任何項"
 [ErrOpenGzip]
 hash = "sha1-0173619c10e737aa4e8793126a2e608ca7f4e9f2"
 other = "從 '{{.Package}}' 開啟 gzip 串流"
+
+[ErrRemoveYumetePackage]
+hash = "sha1-3a629ff002ff17d210e3b2c55e1e41204bce1062"
+other = "移除 yumete 安裝包 '{{.Path}}'"
 
 [ErrResolveCompile]
 hash = "sha1-c248736554c11d8a515e4070b8660c857882b5be"
@@ -121,6 +161,10 @@ other = "解析安裝佈局"
 [ErrResolveUninstallLayout]
 hash = "sha1-a8bdd5c09c2fd08232ecd4f26c044acf82ece13b"
 other = "解析解除安裝佈局"
+
+[ErrResolveYumeteLayout]
+hash = "sha1-24ee39a968484380fdb940453161d52148d0ae7e"
+other = "解析 yumete 安裝佈局"
 
 [ErrSchemaNotFound]
 hash = "sha1-f6039e9f0ad2cb12b895469e82511c5eb445ff66"
@@ -149,6 +193,18 @@ other = "不支援的安裝包 '{{.Package}}': 應為目錄或 .tar.gz 壓縮檔
 [ErrWriteEnvironmentFile]
 hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
 other = "寫入 '{{.Path}}'"
+
+[ErrYumeteMissingBinary]
+hash = "sha1-e72ffccf925b624bffa6c6d4047411f951f66b05"
+other = "安裝包中找不到 yumete 可執行檔: '{{.Path}}'"
+
+[ErrYumeteNoMatchingAsset]
+hash = "sha1-029027ba02bc3dbc13f2d580f68184f3b2dd57fb"
+other = "找不到符合 '{{.Arch}}' 的 linux yumete 安裝包"
+
+[ErrYumetePackageLayout]
+hash = "sha1-f1f5980ac264d2e5bd9ff5403b6d1ad63f0860df"
+other = "yumete 安裝包結構異常: 應包含單個 'yumete-*' 目錄"
 
 [ExecutingFcitx5RestartCmd]
 hash = "sha1-378ba07bb45b9a3705c6b0e15cc1884d1b23dd36"
@@ -257,6 +313,10 @@ other = "部分檔案未被移除 (pkexec 被拒絕)"
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
 other = "管理宇夢輸入系統的安裝, 配置與數據"
+
+[YumeConfigCmdDesc]
+hash = "sha1-8420363bf5c64a4ed38996a4d6163723ddb5335f"
+other = "開啟宇夢引擎的設定 TUI"
 
 [YumeCustomCmdDesc]
 hash = "sha1-bc946ad5b89b8e783b60c9c539670c9ba039bd4d"
@@ -429,3 +489,59 @@ other = "宇夢已是最新版本 ({{.Version}}-{{.Timestamp}})"
 [YumeVersionCmdDesc]
 hash = "sha1-5bae585816ef202003637f4f4e2a08feedbbcb07"
 other = "列印已安裝宇夢引擎的版本"
+
+[YumeteCmdDesc]
+hash = "sha1-e55b2dd6a512aa52484d4e8bdf915c1dff990d94"
+other = "管理 yumete 的安裝"
+
+[YumeteExtracting]
+hash = "sha1-e708089cfefce7c9e3de28249415a9a427b48b28"
+other = "正在解壓縮 '{{.Package}}'..."
+
+[YumeteInstalledPackages]
+hash = "sha1-81318571544477a443311ad4cb83c3eedf5cf6ea"
+other = "已安裝的 yumete 安裝包: {{.Packages}}"
+
+[YumeteInstalling]
+hash = "sha1-53a2968a553ae4cd68d035e0339f122ffe84d14c"
+other = "正在將 yumete {{.Version}} 安裝到 '{{.Directory}}'..."
+
+[YumeteLayout]
+hash = "sha1-c00edda067b4fef2625c170b23b04c695b054758"
+other = "安裝目錄: 程式庫 '{{.Lib}}', 可執行檔 '{{.Bin}}'"
+
+[YumeteLinking]
+hash = "sha1-0e6b61dc8072d2df7e8c5b3f3a020913ceff4139"
+other = "'{{.Link}}' -> '{{.Target}}'"
+
+[YumeteNotInstalled]
+hash = "sha1-200aecd8fc89457b079c91bcb28402d3b3d72da1"
+other = "尚未安裝 yumete"
+
+[YumeteRelease]
+hash = "sha1-213378d57c8d011010d0ac74621e925474957254"
+other = "最新 yumete 發行版: {{.Version}} ({{.Arch}}, {{.FileName}}, {{.Size}})"
+
+[YumeteRemovingPackage]
+hash = "sha1-c12fdddc3ae339c1ec72a9c3c13c921749e17d34"
+other = "移除被取代的 yumete 安裝包 '{{.Path}}'"
+
+[YumeteUpToDate]
+hash = "sha1-23d50f9824a28e9763f53bfa287d6aba2fd9626a"
+other = "yumete 已是最新版本 ({{.Version}})"
+
+[YumeteUpdateAvailable]
+hash = "sha1-01e2890ed13f56603643c2889f85a6db04eb2738"
+other = "發現新版本: {{.New}} (目前 {{.Current}})"
+
+[YumeteUpdateChecking]
+hash = "sha1-dfd1bcb40ebfcc1a520ad1aecab33b1b673a16a5"
+other = "正在檢查最新 yumete 發行版..."
+
+[YumeteUpdateCmdDesc]
+hash = "sha1-1821ed4d47923256e322dc0fd3b1b317f0ae4b60"
+other = "將 yumete 更新到最新發行版"
+
+[YumeteWarnMultiplePackages]
+hash = "sha1-2a0996773b0bf34420d18a1297ec881c3769400b"
+other = "發現多個 yumete 安裝包 ({{.Packages}}); 跳過刪除舊安裝包"

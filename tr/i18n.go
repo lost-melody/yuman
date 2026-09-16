@@ -42,6 +42,11 @@ func LocalizeError(lc *i18n.LocalizeConfig) error {
 	return errors.New(Localize(lc))
 }
 
+// WrapError localizes lc and wraps cause with it, preserving the error chain.
+func WrapError(lc *i18n.LocalizeConfig, cause error) error {
+	return fmt.Errorf("%s: %w", Localize(lc), cause)
+}
+
 // LocalizeErrorf treats "Localize(lc)" as a format string in which '%w' is used.
 func LocalizeErrorf(lc *i18n.LocalizeConfig, a ...any) error {
 	return fmt.Errorf(Localize(lc), a...)
