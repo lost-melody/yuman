@@ -29,6 +29,7 @@ tasks:
         sh: git rev-parse --short HEAD || echo unknown
 
   pack:
+    desc: Build yuman and create an archive
     cmds:
       - task: build
         vars:
@@ -36,11 +37,15 @@ tasks:
       - >-
         tar -zcf yuman-v{{.VERSION}}-{{.DATETIME}}-{{.MACHINE}}.tar.gz
         yuman README.md LICENSE
+    env:
+      GOARCH: "{{.GOARCH}}"
     vars:
       DATETIME:
-        sh: date +%Y%m%d%H%M
+        sh: date -u +%Y%m%d%H%M
       MACHINE:
         sh: uname -m
+      GOARCH:
+        sh: go env GOARCH
 
   test:
     desc: Run tests
