@@ -2,9 +2,11 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"runtime"
 
+	fang "charm.land/fang/v2"
 	"github.com/lost-melody/yuman/flags"
 	"github.com/lost-melody/yuman/tr"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -49,7 +51,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	registerShorthands()
-	err := rootCmd.Execute()
+	err := fang.Execute(context.Background(), rootCmd)
 	if err != nil {
 		os.Exit(1)
 	}
