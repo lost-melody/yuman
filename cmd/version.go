@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"runtime/debug"
 
 	"github.com/lost-melody/yuman/flags"
 	"github.com/lost-melody/yuman/tr"
@@ -53,4 +54,21 @@ func runVersion(cmd *cobra.Command, args []string) (err error) {
 	fmt.Printf("%s\n", data)
 
 	return
+}
+
+func readBuildVersion() {
+	if Version != "dev" {
+		// version already set by ldflags.
+		return
+	}
+
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		return
+	}
+
+	version := buildInfo.Main.Version
+	if version != "" && version != "(devel)" {
+		Version = version
+	}
 }

@@ -51,6 +51,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	registerShorthands()
+	readBuildVersion()
 	err := fang.Execute(context.Background(), rootCmd)
 	if err != nil {
 		os.Exit(1)
