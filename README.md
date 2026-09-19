@@ -11,6 +11,7 @@ _Yuman_ 是一個爲 _[Yume][yume-release]_ (宇夢輸入系統) 構建的 _CLI_
 ## Features
 
 - 自動從 _GitHub_ 發佈頁安裝及更新 _Yume_: 執行 `yuman update-yume`.
+- 自動從 _GitHub_ 發佈頁升級 _Yuman_ 自身: 執行 `yuman upgrade`.
 - 從指定 _URL_ 或 `.tar.gz` 文件安裝 _Yume_: 執行 `yuman install [package]`.
 - 重啓 _Fcitx5_ 服務或重載輸入法配置: `yuman restart` 及 `yuman reload [addon]`.
 - 導入或移除自定義方案碼表: `yuman import [table.txt]` 及 `yuman yume custom remove <schema>`.

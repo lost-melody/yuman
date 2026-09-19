@@ -22,6 +22,10 @@ other = "压缩包条目越出目标目录: '{{.Name}}'"
 hash = "sha1-4954dee091430237d887c57f3e16ec5dcad0a48e"
 other = "调用 {{.BusType}} 总线方法 '{{.Method}}' 时: %w"
 
+[ErrChmodYumanBinary]
+hash = "sha1-7addaf49fdc69c2f62cb5437f7cb7294c0c32cf7"
+other = "将 '{{.Path}}' 设为可执行"
+
 [ErrChmodYumeteBinary]
 hash = "sha1-7addaf49fdc69c2f62cb5437f7cb7294c0c32cf7"
 other = "将 '{{.Path}}' 设为可执行"
@@ -66,6 +70,22 @@ other = "创建 environment.d 目录"
 hash = "sha1-5fb7fc1643579c6442294a57505076327513acca"
 other = "创建临时目录"
 
+[ErrCreateYumanBinDir]
+hash = "sha1-a5f58ab449606385debbca708f25eddd5931b876"
+other = "创建 yuman 可执行目录 '{{.Directory}}'"
+
+[ErrCreateYumanLibDir]
+hash = "sha1-433e4b2c2501fe908106415cdcd5ef34cc7fe443"
+other = "创建 yuman 库目录 '{{.Directory}}'"
+
+[ErrCreateYumanLink]
+hash = "sha1-2b0c2ab568b121562bf1128b071743d0ce5ae605"
+other = "创建 yuman 符号链接 '{{.Link}}'"
+
+[ErrCreateYumanTempDir]
+hash = "sha1-bb74d897adf6792c99b6d16f41cf0ccaa3234533"
+other = "创建 yuman 临时目录"
+
 [ErrCreateYumeteBinDir]
 hash = "sha1-15af77a605aadd6961e80079cc4ed76838e014cc"
 other = "创建 yumete 可执行目录 '{{.Directory}}'"
@@ -94,6 +114,10 @@ other = "无法重启 fcitx5 服务"
 hash = "sha1-3d26a49a0b891e2e5476d10cff9ff4b8ff3f779f"
 other = "从 '{{.URL}}' 获取最新宇梦发行版失败"
 
+[ErrFetchYumanRelease]
+hash = "sha1-4b39b44524174265d4dc9846b3aab925e82b6196"
+other = "从 '{{.URL}}' 获取最新 yuman 发行版"
+
 [ErrFetchYumeteRelease]
 hash = "sha1-50fb9ff9a3893ca03fb94d5b55c792fadbc4b342"
 other = "从 '{{.URL}}' 获取最新 yumete 发行版"
@@ -106,9 +130,17 @@ other = "参数 '{{.FlagA}}' 和 '{{.FlagB}}' 相互冲突"
 hash = "sha1-88a65ee4b343a2e1ba1e34f84fffd103406fe201"
 other = "安装失败"
 
+[ErrInstallYumanPackage]
+hash = "sha1-8c632c81e7369cdaa84f42fff4a0c70b4db24538"
+other = "将 yuman 安装包安装到 '{{.Directory}}'"
+
 [ErrInstallYumetePackage]
 hash = "sha1-0c59eba596296344c6e448ad377a18292287c2f9"
 other = "将 yumete 安装包安装到 '{{.Directory}}'"
+
+[ErrListYumanPackages]
+hash = "sha1-84be98973b1f6c8b41d9f607d41e08068a0ad1f5"
+other = "列出 '{{.Directory}}' 中的 yuman 安装包"
 
 [ErrListYumetePackages]
 hash = "sha1-023e41b6683169afd6cf076dfe8f6670b6dc0067"
@@ -130,6 +162,10 @@ other = "没有找到匹配 {{.Arch}} 的 linux 安装包"
 hash = "sha1-e77a0b063f063c6244f316df26f7ecf2f2a690df"
 other = "未找到宇梦发行版"
 
+[ErrNoYumanRelease]
+hash = "sha1-b3a319ebf548b0a30208bd7193ff3479bca7034b"
+other = "未找到 yuman 发行版"
+
 [ErrNoYumeteRelease]
 hash = "sha1-ea3921c76b9cbc23048e371b8e968b573b255a8d"
 other = "未找到 yumete 发行版"
@@ -141,6 +177,10 @@ other = "未选择任何项"
 [ErrOpenGzip]
 hash = "sha1-0173619c10e737aa4e8793126a2e608ca7f4e9f2"
 other = "从 '{{.Package}}' 打开 gzip 流"
+
+[ErrRemoveYumanPackage]
+hash = "sha1-f4a5c84c91238faeb686fa5a8607e3997c045993"
+other = "移除 yuman 安装包 '{{.Path}}'"
 
 [ErrRemoveYumetePackage]
 hash = "sha1-3a629ff002ff17d210e3b2c55e1e41204bce1062"
@@ -161,6 +201,10 @@ other = "解析安装布局"
 [ErrResolveUninstallLayout]
 hash = "sha1-a8bdd5c09c2fd08232ecd4f26c044acf82ece13b"
 other = "解析卸载布局"
+
+[ErrResolveYumanLayout]
+hash = "sha1-644c72a3149d6572a9d7263cb476fc63c682a3bd"
+other = "解析 yuman 安装布局"
 
 [ErrResolveYumeteLayout]
 hash = "sha1-24ee39a968484380fdb940453161d52148d0ae7e"
@@ -193,6 +237,14 @@ other = "不支持的安装包 '{{.Package}}': 应为目录或 .tar.gz 压缩包
 [ErrWriteEnvironmentFile]
 hash = "sha1-58b62c3ef30e9e0ff6124fc1d211ff2d4d10ecde"
 other = "写入 '{{.Path}}'"
+
+[ErrYumanMissingBinary]
+hash = "sha1-98a72c9fc7e46084e8378617b1338d45fcf19302"
+other = "安装包中未找到 yuman 可执行文件: '{{.Path}}'"
+
+[ErrYumanNoMatchingAsset]
+hash = "sha1-9e3745eef9ecb96d999a5b7504d94739ce55f1c0"
+other = "没有找到匹配 '{{.Arch}}' 的 linux yuman 安装包"
 
 [ErrYumeteMissingBinary]
 hash = "sha1-e72ffccf925b624bffa6c6d4047411f951f66b05"
@@ -309,6 +361,62 @@ other = "语言文件未安装 (pkexec 被拒绝)"
 [WarnUninstallSkipped]
 hash = "sha1-d331195eb4539569a638b5fcaf92651208dec7ab"
 other = "部分文件未被移除 (pkexec 被拒绝)"
+
+[YumanExtracting]
+hash = "sha1-e708089cfefce7c9e3de28249415a9a427b48b28"
+other = "正在解压 '{{.Package}}'..."
+
+[YumanInstalledPackages]
+hash = "sha1-0f945824fda3912967b6408d1ba6f1a5baf5e664"
+other = "已安装的 yuman 安装包: {{.Packages}}"
+
+[YumanInstalling]
+hash = "sha1-70e7c296cf00605b306ed1435cf407c2ac0288e4"
+other = "正在将 yuman {{.Version}}-{{.Timestamp}} 安装到 '{{.Directory}}'..."
+
+[YumanLayout]
+hash = "sha1-c00edda067b4fef2625c170b23b04c695b054758"
+other = "安装目录: 库 '{{.Lib}}', 可执行 '{{.Bin}}'"
+
+[YumanLinking]
+hash = "sha1-0e6b61dc8072d2df7e8c5b3f3a020913ceff4139"
+other = "'{{.Link}}' -> '{{.Target}}'"
+
+[YumanNotInstalled]
+hash = "sha1-f061b9c3c216428024d3e41d95b3b1fb65a6dd37"
+other = "尚未安装 yuman"
+
+[YumanRelease]
+hash = "sha1-1c6d8ae5fab9a3a1fed9fc655976a6832dcb05d2"
+other = "最新 yuman 发行版: {{.Version}}-{{.Timestamp}} ({{.FileName}}, {{.Size}})"
+
+[YumanRemovingPackage]
+hash = "sha1-5b97b4e2ce723be4939474dd1f802caeee2f508a"
+other = "移除被替换的 yuman 安装包 '{{.Path}}'"
+
+[YumanUpToDate]
+hash = "sha1-49b4fe950b913f4193f34958ffdc30670135a867"
+other = "yuman 已是最新版本 ({{.Version}}-{{.Timestamp}})"
+
+[YumanUpdateAvailable]
+hash = "sha1-7388baf6af7645f61a75a37b7c97ad95990a32e5"
+other = "发现新版本: {{.New}}-{{.NewTimestamp}} (大小: {{.NewSize}}) (当前 {{.Current}}-{{.CurrentTimestamp}})"
+
+[YumanUpgradeChecking]
+hash = "sha1-951f2e41c7be0459be9df92f4b8e17bf74c93aa5"
+other = "正在检查最新 yuman 发行版..."
+
+[YumanUpgradeCmdDesc]
+hash = "sha1-8696233b0b9d30138a29baa135f1dc3ce84a20b4"
+other = "将 yuman 升级到最新发行版"
+
+[YumanWarnMultiplePackages]
+hash = "sha1-695a583737b7b4793393e8559cd3176cc15a9ff3"
+other = "发现多个 yuman 安装包 ({{.Packages}}); 跳过删除旧安装包"
+
+[YumanWarnNotManaged]
+hash = "sha1-d418c19e6d7bd403876a6bc742edda2fa7eb085c"
+other = "警告: 当前运行的 yuman '{{.Path}}' 并非受管理的命令 '{{.Bin}}'"
 
 [YumeCmdDesc]
 hash = "sha1-77438baa5e655259ae3f4244d5eb512ea0be1c3e"
