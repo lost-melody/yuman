@@ -6,7 +6,7 @@ vars:
   GREETING: Hello! Try 'task -l' to see available tasks.
   CGO_ENABLED: 1
   GO_PKG: github.com/lost-melody/yuman
-  VERSION: 0.2.0
+  VERSION: 0.2.1
   LOCALES_DIR: tr/locales
   LANG: zh-CN
 
