@@ -101,6 +101,14 @@ func selectReleaseAsset(assets []release.Asset, arch string) (release.Asset, err
 // parseReleaseAssetName parses a linux release asset name of the form
 // Yume-v3.12.0-20260826130405-linux-x86_64.tar.gz, returning the version,
 // timestamp and arch. ok is false when the name does not follow that shape.
+//
+// The anchor is the "linux" segment, not the timestamp, because a version may
+// itself contain hyphens and may join the timestamp with a dot: a pre-release
+// is published as Yume-v3.13.0-beta.20261018122440-linux-x86_64.tar.gz, where
+// splitting on "-" never yields a bare 14-digit field. Anchoring on the
+// timestamp made every such release invisible to `yuman yume update`, which
+// reported "no matching linux package" with the asset sitting right there.
+// This is also how the sibling parser in the yumete package reads its names.
 func parseReleaseAssetName(name string) (version, timestamp, arch string, ok bool) {
 	if !strings.HasSuffix(name, ".tar.gz") {
 		return "", "", "", false
@@ -113,17 +121,43 @@ func parseReleaseAssetName(name string) (version, timestamp, arch string, ok boo
 
 	parts := strings.Split(rest, "-")
 	for i, part := range parts {
-		if len(part) != timestampLen || !isDigits(part) {
+		if part != "linux" {
 			continue
 		}
-		// The layout after the timestamp is "-linux-<arch>".
-		tail := parts[i+1:]
-		if len(tail) < 2 || tail[0] != "linux" {
+		// The layout is "<version-carrying-the-timestamp>-linux-<arch>".
+		if i == 0 || i == len(parts)-1 {
 			return "", "", "", false
 		}
-		return strings.Join(parts[:i], "-"), part, strings.Join(tail[1:], "-"), true
+		version, timestamp, ok = splitTimestamp(strings.Join(parts[:i], "-"))
+		if !ok {
+			return "", "", "", false
+		}
+		return version, timestamp, strings.Join(parts[i+1:], "-"), true
 	}
 	return "", "", "", false
+}
+
+// splitTimestamp takes the 14-digit build stamp off the end of the version
+// text an asset name carries, returning what precedes it and the stamp.
+//
+// Both separators are in use: a release names it "v3.12.0-20260826130405" and
+// a pre-release "v3.13.0-beta.20261018122440". ok is false when the text does
+// not end in a stamp, which is what makes a name without one no asset at all.
+func splitTimestamp(text string) (version, timestamp string, ok bool) {
+	if len(text) < timestampLen+1 {
+		return "", "", false
+	}
+	timestamp = text[len(text)-timestampLen:]
+	if !isDigits(timestamp) {
+		return "", "", false
+	}
+	version = text[:len(text)-timestampLen]
+	switch version[len(version)-1] {
+	case '-', '.':
+		return version[:len(version)-1], timestamp, true
+	default:
+		return "", "", false
+	}
 }
 
 const timestampLen = 14

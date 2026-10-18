@@ -28,10 +28,31 @@ func TestParseReleaseAssetName(t *testing.T) {
 			wantArch:      "aarch64",
 			wantOK:        true,
 		},
+		{
+			// A pre-release joins the stamp to the version with a dot, and the
+			// version itself carries a hyphen: splitting on "-" never yields a
+			// bare 14-digit field, which once made these invisible to
+			// `yuman yume update`.
+			name:          "Yume-v3.13.0-beta.20261018122440-linux-x86_64.tar.gz",
+			wantVersion:   "v3.13.0-beta",
+			wantTimestamp: "20261018122440",
+			wantArch:      "x86_64",
+			wantOK:        true,
+		},
+		{
+			name:          "Yume-v3.13.0-beta.20261018122440-linux-aarch64.tar.gz",
+			wantVersion:   "v3.13.0-beta",
+			wantTimestamp: "20261018122440",
+			wantArch:      "aarch64",
+			wantOK:        true,
+		},
 		{name: "not-a-tarball.zip", wantOK: false},
 		{name: "Other-v1.0-20260826130405-linux-x86_64.tar.gz", wantOK: false},
 		{name: "Yume-v1.0-linux-x86_64.tar.gz", wantOK: false},
 		{name: "Yume-v1.0-20260826130405-windows-x86_64.tar.gz", wantOK: false},
+		// A stamp that is not 14 digits is not a stamp.
+		{name: "Yume-v1.0-2026082613040-linux-x86_64.tar.gz", wantOK: false},
+		{name: "Yume-20260826130405-linux-x86_64.tar.gz", wantOK: false},
 	}
 
 	for _, tt := range tests {
